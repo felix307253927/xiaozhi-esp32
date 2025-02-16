@@ -26,8 +26,8 @@
 #define DISPLAY_RST_PIN       GPIO_NUM_18
 #define DISPLAY_CS_PIN        GPIO_NUM_14
 
-#define DISPLAY_WIDTH   240
-#define DISPLAY_HEIGHT  240
+#define DISPLAY_WIDTH   128
+#define DISPLAY_HEIGHT  160
 #define DISPLAY_MIRROR_X false
 #define DISPLAY_MIRROR_Y false
 #define DISPLAY_SWAP_XY false

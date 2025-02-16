@@ -147,51 +147,52 @@ void Ssd1306Display::SetupUI_128x64() {
     lv_obj_set_style_border_width(container_, 0, 0);
     lv_obj_set_style_pad_row(container_, 0, 0);
 
-    /* Status bar */
-    status_bar_ = lv_obj_create(container_);
-    lv_obj_set_size(status_bar_, LV_HOR_RES, 18);
-    lv_obj_set_style_radius(status_bar_, 0, 0);
-    
-    /* Content */
     content_ = lv_obj_create(container_);
     lv_obj_set_scrollbar_mode(content_, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_style_radius(status_bar_, 0, 0);
-    lv_obj_set_width(content_, LV_HOR_RES);
-    lv_obj_set_flex_grow(content_, 1);
+    lv_obj_set_size(content_, LV_HOR_RES, 46);
+    lv_obj_set_flex_align(content_, LV_FLEX_ALIGN_SPACE_AROUND, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    status_bar_ = lv_obj_create(container_);
+    lv_obj_set_flex_align(status_bar_, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_size(status_bar_, 128, 18);
+    lv_obj_set_style_text_align(status_bar_, LV_TEXT_ALIGN_CENTER, 0);
+
+    /* Status bar */
+    status_label_ = lv_label_create(status_bar_);
+    lv_obj_set_size(status_label_, 128, 18);
+    lv_label_set_text(status_label_, "");
+    lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+
+    notification_label_ = lv_label_create(status_bar_);
+    lv_obj_set_size(notification_label_, 128, 18);
+    lv_label_set_text(notification_label_, "通知");
+    lv_label_set_long_mode(notification_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
+
+    
+    /* Content */
+    network_label_ = lv_label_create(content_);
+    lv_label_set_text(network_label_, "");
+    lv_obj_set_style_text_font(network_label_, icon_font_, 0);
+    lv_obj_set_style_text_align(network_label_, LV_TEXT_ALIGN_CENTER, 0);
 
     emotion_label_ = lv_label_create(content_);
     lv_obj_set_style_text_font(emotion_label_, &font_awesome_30_1, 0);
     lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
     lv_obj_center(emotion_label_);
+    lv_obj_set_flex_grow(emotion_label_, 1);
+    lv_obj_set_style_text_align(emotion_label_, LV_TEXT_ALIGN_CENTER, 0);
 
-    /* Status bar */
-    lv_obj_set_flex_flow(status_bar_, LV_FLEX_FLOW_ROW);
-    lv_obj_set_style_pad_all(status_bar_, 0, 0);
-    lv_obj_set_style_border_width(status_bar_, 0, 0);
-    lv_obj_set_style_pad_column(status_bar_, 0, 0);
-
-    network_label_ = lv_label_create(status_bar_);
-    lv_label_set_text(network_label_, "");
-    lv_obj_set_style_text_font(network_label_, icon_font_, 0);
-
-    notification_label_ = lv_label_create(status_bar_);
-    lv_obj_set_flex_grow(notification_label_, 1);
-    lv_obj_set_style_text_align(notification_label_, LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_text(notification_label_, "通知");
-    lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
-
-    status_label_ = lv_label_create(status_bar_);
-    lv_obj_set_flex_grow(status_label_, 1);
-    lv_label_set_text(status_label_, "正在初始化");
-    lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);
-
-    mute_label_ = lv_label_create(status_bar_);
+    mute_label_ = lv_label_create(content_);
     lv_label_set_text(mute_label_, "");
     lv_obj_set_style_text_font(mute_label_, icon_font_, 0);
+    lv_obj_set_style_text_align(mute_label_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_add_flag(mute_label_, LV_OBJ_FLAG_HIDDEN);
 
-    battery_label_ = lv_label_create(status_bar_);
-    lv_label_set_text(battery_label_, "");
+    battery_label_ = lv_label_create(content_);
+    lv_label_set_text(battery_label_, FONT_AWESOME_BATTERY_CHARGING);
     lv_obj_set_style_text_font(battery_label_, icon_font_, 0);
+    lv_obj_set_style_text_align(battery_label_, LV_TEXT_ALIGN_CENTER, 0);
 }
 
 void Ssd1306Display::SetupUI_128x32() {

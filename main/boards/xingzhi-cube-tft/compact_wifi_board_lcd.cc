@@ -29,9 +29,9 @@ private:
 
     void InitializeSpi() {
         spi_bus_config_t buscfg = {};
-        buscfg.mosi_io_num = DISPLAY_MOSI_PIN;
+        buscfg.mosi_io_num = DISPLAY_MOSI_PIN; // SDA 引脚 GPIO_10
         buscfg.miso_io_num = GPIO_NUM_NC;
-        buscfg.sclk_io_num = DISPLAY_CLK_PIN;
+        buscfg.sclk_io_num = DISPLAY_CLK_PIN; // SCL 引脚 GPIO_9
         buscfg.quadwp_io_num = GPIO_NUM_NC;
         buscfg.quadhd_io_num = GPIO_NUM_NC;
         buscfg.max_transfer_sz = DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint16_t);
@@ -44,8 +44,8 @@ private:
         // 液晶屏控制IO初始化
         ESP_LOGD(TAG, "Install panel IO");
         esp_lcd_panel_io_spi_config_t io_config = {};
-        io_config.cs_gpio_num = DISPLAY_CS_PIN;
-        io_config.dc_gpio_num = DISPLAY_DC_PIN;
+        io_config.cs_gpio_num = DISPLAY_CS_PIN; // CS 引脚 GPIO_14
+        io_config.dc_gpio_num = DISPLAY_DC_PIN; // DC 引脚 GPIO_8
         io_config.spi_mode = 0;
         io_config.pclk_hz = 40 * 1000 * 1000;
         io_config.trans_queue_depth = 10;
@@ -56,7 +56,7 @@ private:
         // 初始化液晶屏驱动芯片
         ESP_LOGD(TAG, "Install LCD driver");
         esp_lcd_panel_dev_config_t panel_config = {};
-        panel_config.reset_gpio_num = DISPLAY_RST_PIN;
+        panel_config.reset_gpio_num = DISPLAY_RST_PIN; // RST 引脚 GPIO_18
         panel_config.rgb_ele_order = DISPLAY_RGB_ORDER;
         panel_config.bits_per_pixel = 16;
         ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(panel_io, &panel_config, &panel));

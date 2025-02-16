@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-02-14 19:48:34
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-02-15 17:34:15
+ */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
 
@@ -37,7 +44,7 @@
 #define DISPLAY_SDA_PIN GPIO_NUM_41
 #define DISPLAY_SCL_PIN GPIO_NUM_42
 #define DISPLAY_WIDTH   128
-#define DISPLAY_HEIGHT  32
+#define DISPLAY_HEIGHT  64
 #define DISPLAY_MIRROR_X true
 #define DISPLAY_MIRROR_Y true
 

@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "ESP-IDF",
+            "compilerPath": "${env:IDF_TOOLS_PATH}/tools/xtensa-esp32s3-elf/esp-12.2.0_20230208/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gcc.exe",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${env:IDF_PATH}/components/**",
+                "${env:IDF_PATH}/components/freertos/FreeRTOS-Kernel/include",
+                "${env:IDF_PATH}/components/esp_common/include",
+                "${env:IDF_PATH}/components/esp_system/include",
+                "${env:IDF_PATH}/components/driver/include",
+                "${env:IDF_PATH}/components/esp_hw_support/include",
+                "${env:IDF_PATH}/components/esp_rom/include",
+                "${env:IDF_PATH}/components/hal/include",
+                "${env:IDF_PATH}/components/log/include",
+                "${env:IDF_PATH}/components/heap/include",
+                "${env:IDF_PATH}/components/soc/esp32s3/include",
+                "${env:IDF_PATH}/components/esp_timer/include"
+            ],
+            "defines": [
+                "ESP_PLATFORM",
+                "CONFIG_IDF_TARGET_ESP32S3"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+} 

@@ -111,7 +111,7 @@ void Application::CheckNewVersion() {
                 });
             } else {
                 ota_.MarkCurrentVersionValid();
-                display->ShowNotification("版本 " + ota_.GetCurrentVersion());
+                display->ShowNotification("你好琦琦呀,我来啦");
             }
             return;
         }
@@ -212,7 +212,7 @@ void Application::StartListening() {
             protocol_->SendStartListening(kListeningModeManualStop);
             // FIXME: Wait for the speaker to empty the buffer
             vTaskDelay(pdMS_TO_TICKS(120));
-            SetDeviceState(kDeviceStateListening);
+            SetDeviceState(kDeviceStateWaitingForSpeak);
         }
     });
 }
@@ -275,7 +275,7 @@ void Application::Start() {
     board.StartNetwork();
 
     // Initialize the protocol
-    display->SetStatus("初始化协议");
+    display->SetStatus("初始化...");
 #ifdef CONFIG_CONNECTION_TYPE_WEBSOCKET
     protocol_ = std::make_unique<WebsocketProtocol>();
 #else
@@ -306,7 +306,7 @@ void Application::Start() {
         board.SetPowerSaveMode(true);
         Schedule([this]() {
             auto display = Board::GetInstance().GetDisplay();
-            display->SetChatMessage("", "");
+            // display->SetChatMessage("", "");
             SetDeviceState(kDeviceStateIdle);
         });
     });
@@ -339,7 +339,8 @@ void Application::Start() {
                 if (text != NULL) {
                     ESP_LOGI(TAG, "<< %s", text->valuestring);
                     Schedule([this, display, message = std::string(text->valuestring)]() {
-                        display->SetChatMessage("assistant", message);
+                        // display->SetChatMessage("assistant", message);
+                        display->SetStatus(message);
                     });
                 }
             }
@@ -348,7 +349,8 @@ void Application::Start() {
             if (text != NULL) {
                 ESP_LOGI(TAG, ">> %s", text->valuestring);
                 Schedule([this, display, message = std::string(text->valuestring)]() {
-                    display->SetChatMessage("user", message);
+                    // display->SetChatMessage("user", message);
+                    display->SetStatus(message);
                 });
             }
         } else if (strcmp(type->valuestring, "llm") == 0) {
@@ -369,7 +371,6 @@ void Application::Start() {
             }
         }
     });
-
     // Check for new firmware version or get the MQTT broker address
     xTaskCreate([](void* arg) {
         Application* app = (Application*)arg;
@@ -440,6 +441,7 @@ void Application::Start() {
 #endif
 
     SetDeviceState(kDeviceStateIdle);
+    display->SetStatus("请说[喵喵同学]唤醒我");
 }
 
 void Application::Schedule(std::function<void()> callback) {
@@ -607,8 +609,8 @@ void Application::SetDeviceState(DeviceState state) {
     switch (state) {
         case kDeviceStateUnknown:
         case kDeviceStateIdle:
-            display->SetStatus("待命");
-            display->SetEmotion("neutral");
+            display->SetStatus("喵喵同学");
+            display->SetEmotion("happy");
 #ifdef CONFIG_USE_AUDIO_PROCESSING
             audio_processor_.Stop();
 #endif
@@ -626,8 +628,12 @@ void Application::SetDeviceState(DeviceState state) {
 #endif
             UpdateIotStates();
             break;
+        case kDeviceStateWaitingForSpeak:
+            ResetDecoder();
+            opus_encoder_->ResetState();
+            break;
         case kDeviceStateSpeaking:
-            display->SetStatus("说话中...");
+            // display->SetStatus("说话中...");
             ResetDecoder();
             codec->EnableOutput(true);
 #if CONFIG_USE_AUDIO_PROCESSING

@@ -35,7 +35,8 @@ enum DeviceState {
     kDeviceStateListening,
     kDeviceStateSpeaking,
     kDeviceStateUpgrading,
-    kDeviceStateFatalError
+    kDeviceStateFatalError,
+    kDeviceStateWaitingForSpeak
 };
 
 #define OPUS_FRAME_DURATION_MS 60
