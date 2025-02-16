@@ -132,6 +132,20 @@ void Ssd1306Display::Unlock() {
     lvgl_port_unlock();
 }
 
+void Ssd1306Display::SetChatMessage(const std::string &role, const std::string &content) {
+    DisplayLockGuard lock(this);
+    if (content_right_ == nullptr) {
+        lv_label_set_text(chat_message_label_, content.c_str());
+    } else {
+        if (content.empty()) {
+            lv_obj_add_flag(content_right_, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_label_set_text(chat_message_label_, content.c_str());
+            lv_obj_clear_flag(content_right_, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+}
+
 void Ssd1306Display::SetupUI_128x64() {
     DisplayLockGuard lock(this);
 
@@ -176,7 +190,13 @@ void Ssd1306Display::SetupUI_128x64() {
     lv_obj_set_style_text_font(network_label_, icon_font_, 0);
     lv_obj_set_style_text_align(network_label_, LV_TEXT_ALIGN_CENTER, 0);
 
-    emotion_label_ = lv_label_create(content_);
+    // 创建左侧固定宽度的容器
+    content_left_ = lv_obj_create(content_);
+    lv_obj_set_size(content_left_, 32, LV_SIZE_CONTENT);  // 固定宽度32像素
+    lv_obj_set_style_pad_all(content_left_, 0, 0);
+    lv_obj_set_style_border_width(content_left_, 0, 0);
+    
+    emotion_label_ = lv_label_create(content_left_);
     lv_obj_set_style_text_font(emotion_label_, &font_awesome_30_1, 0);
     lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
     lv_obj_center(emotion_label_);
@@ -251,17 +271,19 @@ void Ssd1306Display::SetupUI_128x32() {
     lv_label_set_text(battery_label_, "");
     lv_obj_set_style_text_font(battery_label_, icon_font_, 0);
 
-    status_label_ = lv_label_create(side_bar_);
-    lv_obj_set_flex_grow(status_label_, 1);
-    lv_obj_set_width(status_label_, width_ - 32);
-    lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    status_label_ = lv_label_create(status_bar_);
+    lv_obj_set_style_pad_left(status_label_, 2, 0);
     lv_label_set_text(status_label_, "正在初始化");
 
-    notification_label_ = lv_label_create(side_bar_);
-    lv_obj_set_flex_grow(notification_label_, 1);
-    lv_obj_set_width(notification_label_, width_ - 32);
-    lv_label_set_long_mode(notification_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    notification_label_ = lv_label_create(status_bar_);
     lv_label_set_text(notification_label_, "通知");
+    lv_obj_set_style_pad_left(notification_label_, 2, 0);
     lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
+
+    chat_message_label_ = lv_label_create(side_bar_);
+    lv_obj_set_flex_grow(chat_message_label_, 1);
+    lv_obj_set_width(chat_message_label_, width_ - 32);
+    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(chat_message_label_, "");
 }
 
