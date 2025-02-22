@@ -57,13 +57,14 @@ public:
     bool IsVoiceDetected() const { return voice_detected_; }
     void Schedule(std::function<void()> callback);
     void SetDeviceState(DeviceState state);
-    void Alert(const std::string& status, const std::string& message, const std::string& emotion = "", const std::string& sound = "");
+    void Alert(const char* status, const char* message, const char* emotion = "", const std::string_view& sound = "");
     void AbortSpeaking(AbortReason reason);
     void ToggleChatState();
     void StartListening();
     void StopListening();
     void UpdateIotStates();
     void Reboot();
+    void WakeWordInvoke(const std::string& wake_word);
 
 private:
     Application();
