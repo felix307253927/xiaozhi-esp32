@@ -1,0 +1,9 @@
+{
+    "target": "esp32s3",
+    "builds": [
+        {
+            "name": "qiqi-tft",
+            "sdkconfig_append": []
+        }
+    ]
+}

@@ -190,14 +190,6 @@ void Application::Alert(const char* status, const char* message, const char* emo
     }
 }
 
-void Application::Welcome() {
-    auto display = Board::GetInstance().GetDisplay();
-    ESP_LOGI(TAG, " Welcome!");
-    std::string sound = std::string(p3_welcome_start, p3_welcome_end - p3_welcome_start);
-    PlayLocalFile(sound.data(), sound.size());
-    display->SetChatMessage("system", "你好琦琦呀,我来啦");
-}
-
 void Application::PlayLocalFile(const char* data, size_t size) {
     ESP_LOGI(TAG, "PlayLocalFile: %zu bytes", size);
     auto codec = Board::GetInstance().GetAudioCodec();

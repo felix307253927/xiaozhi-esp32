@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-16 14:24:55
+ * @LastEditTime       : 2025-02-22 10:42:31
  */
 #include "lcd_st7735_display.h"
 
@@ -303,7 +303,7 @@ void LcdST7735Display::SetupUI() {
     lv_obj_set_style_text_font(battery_label_, fonts_.icon_font, 0);
 }
 
-void LcdST7735Display::SetEmotion(const std::string &emotion) {
+void LcdST7735Display::SetEmotion(const char* emotion) {
     struct Emotion {
         const char* icon;
         const char* text;
@@ -334,8 +334,9 @@ void LcdST7735Display::SetEmotion(const std::string &emotion) {
     };
     
     // 查找匹配的表情
+    std::string_view emotion_view(emotion);
     auto it = std::find_if(emotions.begin(), emotions.end(),
-        [&emotion](const Emotion& e) { return e.text == emotion; });
+        [&emotion_view](const Emotion& e) { return e.text == emotion_view; });
 
     DisplayLockGuard lock(this);
     if (emotion_label_ == nullptr) {

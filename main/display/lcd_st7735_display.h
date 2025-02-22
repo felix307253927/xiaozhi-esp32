@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:28:09
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-16 12:15:25
+ * @LastEditTime       : 2025-02-22 10:39:34
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -54,7 +54,7 @@ public:
                   DisplayFonts fonts);
     ~LcdST7735Display();
 
-    virtual void SetEmotion(const std::string &emotion) override;
+    virtual void SetEmotion(const char* emotion) override;
     virtual void SetIcon(const char* icon) override;
     virtual void SetBacklight(uint8_t brightness) override;
 };
