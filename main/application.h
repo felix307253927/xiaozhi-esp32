@@ -104,7 +104,7 @@ private:
     void SetDecodeSampleRate(int sample_rate);
     void CheckNewVersion();
     void ShowActivationCode();
-
+    void Welcome();
     void PlayLocalFile(const char* data, size_t size);
 };
 

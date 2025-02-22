@@ -44,6 +44,8 @@ bool MqttProtocol::StartMqttClient() {
     if (endpoint_.empty()) {
         ESP_LOGE(TAG, "MQTT endpoint is not specified");
         return false;
+    } else {
+        ESP_LOGI(TAG, "--- MQTT endpoint -> %s", endpoint_.c_str());
     }
 
     mqtt_ = Board::GetInstance().CreateMqtt();

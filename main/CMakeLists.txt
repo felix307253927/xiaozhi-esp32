@@ -11,6 +11,7 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "display/no_display.cc"
             "display/lcd_display.cc"
             "display/ssd1306_display.cc"
+            "display/lcd_st7735_display.cc"
             "boards/lilygo-t-circle-s3/esp_lcd_gc9d01n.c"
             "protocols/protocol.cc"
             "iot/thing.cc"
@@ -101,6 +102,8 @@ elseif(CONFIG_BOARD_TYPE_XINGZHI_Cube_OLED)
     set(BOARD_TYPE "xingzhi-cube-oled")
 elseif(CONFIG_BOARD_TYPE_XINGZHI_Cube_TFT)
     set(BOARD_TYPE "xingzhi-cube-tft")
+elseif(CONFIG_BOARD_TYPE_QIQI_TFT)
+    set(BOARD_TYPE "qiqi-tft")
 endif()
 file(GLOB BOARD_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD_TYPE}/*.cc)
 list(APPEND SOURCES ${BOARD_SOURCES})

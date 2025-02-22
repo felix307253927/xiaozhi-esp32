@@ -109,6 +109,7 @@ Http* WifiBoard::CreateHttp() {
 WebSocket* WifiBoard::CreateWebSocket() {
 #ifdef CONFIG_CONNECTION_TYPE_WEBSOCKET
     std::string url = CONFIG_WEBSOCKET_URL;
+    ESP_LOGI(TAG, "ws_url -> %s", CONFIG_WEBSOCKET_URL);
     if (url.find("wss://") == 0) {
         return new WebSocket(new TlsTransport());
     } else {

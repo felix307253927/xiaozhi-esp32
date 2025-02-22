@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-02-16 09:23:15
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-02-16 14:30:52
+ */
 #ifndef BINARY_H
 #define BINARY_H
 

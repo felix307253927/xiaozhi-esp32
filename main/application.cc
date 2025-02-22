@@ -98,8 +98,7 @@ void Application::CheckNewVersion() {
                 });
             } else {
                 ota_.MarkCurrentVersionValid();
-                display->ShowNotification("你好琦琦呀,我来啦");
-            
+                Welcome();
                 // Check if the activation code is valid
                 if (ota_.HasActivationCode()) {
                     SetDeviceState(kDeviceStateActivating);
@@ -158,6 +157,14 @@ void Application::Alert(const std::string& status, const std::string& message, c
     if (!sound.empty()) {
         PlayLocalFile(sound.data(), sound.size());
     }
+}
+
+void Application::Welcome() {
+    auto display = Board::GetInstance().GetDisplay();
+    ESP_LOGI(TAG, " Welcome!");
+    std::string sound = std::string(p3_welcome_start, p3_welcome_end - p3_welcome_start);
+    PlayLocalFile(sound.data(), sound.size());
+    display->SetChatMessage("system", "你好琦琦呀,我来啦");
 }
 
 void Application::PlayLocalFile(const char* data, size_t size) {
@@ -367,8 +374,8 @@ void Application::Start() {
                 if (text != NULL) {
                     ESP_LOGI(TAG, "<< %s", text->valuestring);
                     Schedule([this, display, message = std::string(text->valuestring)]() {
-                        // display->SetChatMessage("assistant", message);
-                        display->SetStatus(message);
+                        display->SetChatMessage("assistant", message);
+                        // display->SetStatus(message);
                     });
                 }
             }
@@ -377,8 +384,8 @@ void Application::Start() {
             if (text != NULL) {
                 ESP_LOGI(TAG, ">> %s", text->valuestring);
                 Schedule([this, display, message = std::string(text->valuestring)]() {
-                    // display->SetChatMessage("user", message);
-                    display->SetStatus(message);
+                    display->SetChatMessage("user", message);
+                    // display->SetStatus(message);
                 });
             }
         } else if (strcmp(type->valuestring, "llm") == 0) {
@@ -472,7 +479,7 @@ void Application::Start() {
 #endif
 
     SetDeviceState(kDeviceStateIdle);
-    display->SetStatus("请说[喵喵同学]唤醒我");
+    display->SetChatMessage("system", "请说[喵喵同学]唤醒我");
 }
 
 void Application::Schedule(std::function<void()> callback) {
@@ -642,6 +649,7 @@ void Application::SetDeviceState(DeviceState state) {
         case kDeviceStateIdle:
             display->SetStatus("喵喵同学");
             display->SetEmotion("happy");
+            display->SetChatMessage("", "");
 #ifdef CONFIG_USE_AUDIO_PROCESSING
             audio_processor_.Stop();
 #endif

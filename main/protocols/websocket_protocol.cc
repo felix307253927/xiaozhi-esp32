@@ -54,6 +54,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
     }
 
     std::string url = CONFIG_WEBSOCKET_URL;
+    ESP_LOGI(TAG, "--- Websocket URL -> %s", url.c_str());
     std::string token = "Bearer " + std::string(CONFIG_WEBSOCKET_ACCESS_TOKEN);
     websocket_ = Board::GetInstance().CreateWebSocket();
     websocket_->SetHeader("Authorization", token.c_str());
