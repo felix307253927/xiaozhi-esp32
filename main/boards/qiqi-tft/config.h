@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-16 19:43:28
+ * @LastEditTime       : 2025-02-23 10:02:52
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_

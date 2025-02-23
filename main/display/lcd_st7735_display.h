@@ -18,10 +18,14 @@
 #include <esp_lcd_panel_ops.h>
 #include <esp_timer.h>
 #include <font_emoji.h>
+#include <esp_sntp.h>
 
 #include <atomic>
 
 class LcdST7735Display : public Display {
+private:
+    static LcdST7735Display* instance_;  // 添加静态实例指针
+
 protected:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
     esp_lcd_panel_handle_t panel_ = nullptr;
@@ -40,14 +44,27 @@ protected:
 
     esp_timer_handle_t backlight_timer_ = nullptr;
     uint8_t current_brightness_ = 0;
+    lv_obj_t* time_label_ = nullptr;
+    esp_timer_handle_t time_timer_ = nullptr;
+    esp_timer_handle_t sync_timer_ = nullptr;
+    bool time_synced_ = false;
+
+    esp_timer_handle_t status_timer_ = nullptr;  // 添加状态显示定时器
+    void OnStatusTimer();  // 添加状态定时器回调
+
     void OnBacklightTimer();
     void InitializeBacklight(gpio_num_t backlight_pin);
+    void InitTimeSync();
+    static void OnTimeSync(struct timeval *tv);
+    void RetryTimeSync();
 
     virtual void SetupUI();
+    virtual void UpdateTime();
     virtual bool Lock(int timeout_ms = 0) override;
     virtual void Unlock() override;
 
 public:
+    static LcdST7735Display* GetInstance() { return instance_; }  // 添加获取实例的方法
     LcdST7735Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
                   gpio_num_t backlight_pin, bool backlight_output_invert,
                   int width, int height,  int offset_x, int offset_y, bool mirror_x, bool mirror_y, bool swap_xy,
@@ -57,6 +74,7 @@ public:
     virtual void SetEmotion(const char* emotion) override;
     virtual void SetIcon(const char* icon) override;
     virtual void SetBacklight(uint8_t brightness) override;
+    virtual void SetStatus(const char* status) override;
 };
 
 #endif // LCD_DISPLAY_H

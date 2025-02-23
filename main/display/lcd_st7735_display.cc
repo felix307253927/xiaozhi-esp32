@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-22 10:42:31
+ * @LastEditTime       : 2025-02-23 19:32:30
  */
 #include "lcd_st7735_display.h"
 
@@ -14,6 +14,9 @@
 #include <vector>
 #include <esp_lvgl_port.h>
 #include <esp_timer.h>
+#include <esp_sntp.h>
+#include <esp_netif.h>
+#include <wifi_station.h>
 
 #include "board.h"
 
@@ -22,12 +25,16 @@
 
 LV_FONT_DECLARE(font_awesome_30_4);
 
+LcdST7735Display* LcdST7735Display::instance_ = nullptr;
+
 LcdST7735Display::LcdST7735Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
                            gpio_num_t backlight_pin, bool backlight_output_invert,
                            int width, int height, int offset_x, int offset_y, bool mirror_x, bool mirror_y, bool swap_xy,
                            DisplayFonts fonts)
     : panel_io_(panel_io), panel_(panel), backlight_pin_(backlight_pin), backlight_output_invert_(backlight_output_invert),
       fonts_(fonts) {
+    instance_ = this;
+
     width_ = width;
     height_ = height;
 
@@ -99,8 +106,10 @@ LcdST7735Display::LcdST7735Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
         lv_display_set_offset(display_, offset_x, offset_y);
     }
 
-    SetupUI();
+    // 在设置UI之前初始化时间同步
+    InitTimeSync();
 
+    SetupUI();
     SetBacklight(brightness_);
 }
 
@@ -135,6 +144,23 @@ LcdST7735Display::~LcdST7735Display() {
     if (panel_io_ != nullptr) {
         esp_lcd_panel_io_del(panel_io_);
     }
+
+    if (time_timer_ != nullptr) {
+        esp_timer_stop(time_timer_);
+        esp_timer_delete(time_timer_);
+    }
+
+    if (sync_timer_ != nullptr) {
+        esp_timer_stop(sync_timer_);
+        esp_timer_delete(sync_timer_);
+    }
+
+    if (status_timer_ != nullptr) {
+        esp_timer_stop(status_timer_);
+        esp_timer_delete(status_timer_);
+    }
+
+    instance_ = nullptr;
 }
 
 void LcdST7735Display::InitializeBacklight(gpio_num_t backlight_pin) {
@@ -203,6 +229,108 @@ void LcdST7735Display::SetBacklight(uint8_t brightness) {
     ESP_ERROR_CHECK(esp_timer_start_periodic(backlight_timer_, 5 * 1000));
 }
 
+void LcdST7735Display::InitTimeSync() {
+    // 创建时间更新定时器
+    const esp_timer_create_args_t time_timer_args = {
+        .callback = [](void* arg) {
+            LcdST7735Display* display = static_cast<LcdST7735Display*>(arg);
+            display->UpdateTime();
+        },
+        .arg = this,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "time_timer",
+        .skip_unhandled_events = true,
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&time_timer_args, &time_timer_));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(time_timer_, 1000000)); // 每秒更新一次
+    
+    // 创建重试定时器
+    const esp_timer_create_args_t sync_timer_args = {
+        .callback = [](void* arg) {
+            LcdST7735Display* display = static_cast<LcdST7735Display*>(arg);
+            display->RetryTimeSync();
+        },
+        .arg = this,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "sync_timer",
+        .skip_unhandled_events = true,
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&sync_timer_args, &sync_timer_));
+    
+    // 延迟启动重试定时器，给系统一些时间初始化网络
+    ESP_ERROR_CHECK(esp_timer_start_once(sync_timer_, 3000000)); // 3秒后开始第一次尝试
+}
+
+void LcdST7735Display::RetryTimeSync() {
+    if (time_synced_) {
+        return;
+    }
+    
+    // 检查WiFi连接状态
+    auto& wifi = WifiStation::GetInstance();
+    if (wifi.IsConnected()) {
+        ESP_LOGI(TAG, "WiFi connected, starting SNTP");
+        
+        // 配置 SNTP
+        sntp_setoperatingmode(SNTP_OPMODE_POLL);
+        sntp_setservername(0, "pool.ntp.org");
+        sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
+        sntp_set_time_sync_notification_cb(OnTimeSync);
+        
+        ESP_LOGI(TAG, "Initializing SNTP");
+        sntp_init();
+        
+        // 启动定期检查
+        ESP_ERROR_CHECK(esp_timer_start_periodic(sync_timer_, 5000000));
+    } else {
+        ESP_LOGW(TAG, "WiFi not connected, will retry time sync later");
+        // 3秒后重试
+        ESP_ERROR_CHECK(esp_timer_start_once(sync_timer_, 3000000));
+    }
+}
+
+void LcdST7735Display::OnTimeSync(struct timeval *tv) {
+    ESP_LOGI(TAG, "Time synchronized from NTP server!");
+    auto display = LcdST7735Display::GetInstance();
+    if (display) {
+        display->time_synced_ = true;
+        
+        // 设置时区为中国时区 (UTC+8)
+        if (setenv("TZ", "CST-8", 1) != 0) {
+            ESP_LOGE(TAG, "Failed to set timezone");
+        } else {
+            tzset();
+            ESP_LOGI(TAG, "Timezone set to CST-8");
+            
+            // 时间同步成功后立即显示时间
+            display->OnStatusTimer();
+        }
+    }
+}
+
+void LcdST7735Display::UpdateTime() {
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    
+    char time_str[9];
+    if (!time_synced_) {
+        strcpy(time_str, "--:--:--");
+    } else {
+        snprintf(time_str, sizeof(time_str), "%02d:%02d:%02d",
+                timeinfo.tm_hour,
+                timeinfo.tm_min,
+                timeinfo.tm_sec);
+    }
+             
+    DisplayLockGuard lock(this);
+    ESP_LOGI(TAG, "Updating time: %s", time_str);
+    if (time_label_ != nullptr) {
+        lv_label_set_text(time_label_, time_str);
+    }
+}
+
 bool LcdST7735Display::Lock(int timeout_ms) {
     return lvgl_port_lock(timeout_ms);
 }
@@ -236,6 +364,7 @@ void LcdST7735Display::SetupUI() {
     lv_obj_set_style_pad_left(status_bar_, 2, 0);
     lv_obj_set_style_pad_right(status_bar_, 2, 0);
     lv_obj_set_style_border_width(status_bar_, 0, 0);
+    lv_obj_set_flex_align(status_bar_, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     // lv_obj_set_style_border_side(status_bar_, LV_BORDER_SIDE_BOTTOM, 0);
     
     /* Content */
@@ -282,17 +411,24 @@ void LcdST7735Display::SetupUI() {
     lv_label_set_text(network_label_, "");
     lv_obj_set_style_text_font(network_label_, fonts_.icon_font, 0);
 
+    status_label_ = lv_label_create(status_bar_);
+    lv_obj_set_flex_grow(status_label_, 1);  // 状态标签占用剩余空间
+    lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(status_label_, "正在初始化");
+    lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);
+
+    time_label_ = lv_label_create(status_bar_);
+    lv_label_set_text(time_label_, "00:00:00");
+    lv_obj_set_style_text_align(time_label_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_flex_grow(time_label_, 1);  // 时间标签也占用剩余空间
+    lv_obj_add_flag(time_label_, LV_OBJ_FLAG_HIDDEN);  // 初始时隐藏时间标签
+
+    // notification_label_ 应该在最上层
     notification_label_ = lv_label_create(status_bar_);
     lv_obj_set_flex_grow(notification_label_, 1);
     lv_obj_set_style_text_align(notification_label_, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_text(notification_label_, "通知");
     lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
-
-    status_label_ = lv_label_create(status_bar_);
-    lv_obj_set_flex_grow(status_label_, 1);
-    lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(status_label_, "正在初始化");
-    lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);
 
     mute_label_ = lv_label_create(status_bar_);
     lv_label_set_text(mute_label_, "");
@@ -301,6 +437,60 @@ void LcdST7735Display::SetupUI() {
     battery_label_ = lv_label_create(status_bar_);
     lv_label_set_text(battery_label_, FONT_AWESOME_BATTERY_CHARGING);
     lv_obj_set_style_text_font(battery_label_, fonts_.icon_font, 0);
+
+    // 创建状态显示定时器
+    const esp_timer_create_args_t status_timer_args = {
+        .callback = [](void* arg) {
+            LcdST7735Display* display = static_cast<LcdST7735Display*>(arg);
+            display->OnStatusTimer();
+        },
+        .arg = this,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "status_timer",
+        .skip_unhandled_events = true,
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&status_timer_args, &status_timer_));
+}
+
+void LcdST7735Display::OnStatusTimer() {
+    DisplayLockGuard lock(this);
+    if (status_label_ != nullptr) {
+        lv_obj_add_flag(status_label_, LV_OBJ_FLAG_HIDDEN);  // 隐藏状态标签
+    }
+    if (time_label_ != nullptr && time_synced_) {
+        lv_obj_clear_flag(time_label_, LV_OBJ_FLAG_HIDDEN);  // 显示时间标签
+    }
+}
+
+void LcdST7735Display::SetStatus(const char* status) {
+    DisplayLockGuard lock(this);
+    
+    // 停止之前的定时器（如果在运行）
+    if (status_timer_ != nullptr) {
+        esp_timer_stop(status_timer_);
+    }
+    
+    // 隐藏时间标签
+    if (time_label_ != nullptr) {
+        lv_obj_add_flag(time_label_, LV_OBJ_FLAG_HIDDEN);
+    }
+    
+    // 更新状态文本
+    if (status == nullptr || status[0] == '\0') {
+        if (status_label_ != nullptr) {
+            lv_obj_add_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
+        }
+        // 如果状态为空，立即显示时间
+        OnStatusTimer();
+    } else {
+        if (status_label_ != nullptr) {
+            lv_obj_clear_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(status_label_, status);
+            
+            // 5秒后自动切换回时间显示
+            ESP_ERROR_CHECK(esp_timer_start_once(status_timer_, 5000000));  // 5秒 = 5000000微秒
+        }
+    }
 }
 
 void LcdST7735Display::SetEmotion(const char* emotion) {

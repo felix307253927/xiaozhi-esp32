@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-16 14:38:19
+ * @LastEditTime       : 2025-02-23 19:31:52
  */
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
@@ -20,6 +20,7 @@
 #include <driver/i2c_master.h>
 #include <esp_lcd_panel_vendor.h>
 #include <driver/spi_common.h>
+#include <esp_timer.h>
  
 #define TAG "qiqitft"
 
@@ -94,6 +95,7 @@ private:
             }
             app.ToggleChatState();
         });
+
         volume_up_button_.OnClick([this]() {
             auto codec = GetAudioCodec();
             auto volume = codec->output_volume() + 10;
