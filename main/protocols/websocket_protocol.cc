@@ -100,7 +100,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
     if (!websocket_->Connect(url.c_str())) {
         ESP_LOGE(TAG, "Failed to connect to websocket server");
         if (on_network_error_ != nullptr) {
-            on_network_error_(Lang::Strings::UNABLE_TO_CONNECT_TO_SERVICE);
+            on_network_error_(Lang::Strings::SERVER_NOT_FOUND);
         }
         return false;
     }
@@ -121,7 +121,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
     if (!(bits & WEBSOCKET_PROTOCOL_SERVER_HELLO_EVENT)) {
         ESP_LOGE(TAG, "Failed to receive server hello");
         if (on_network_error_ != nullptr) {
-            on_network_error_(Lang::Strings::WAITING_FOR_RESPONSE_TIMEOUT);
+            on_network_error_(Lang::Strings::SERVER_TIMEOUT);
         }
         return false;
     }
