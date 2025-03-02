@@ -1,0 +1,1 @@
+GEN_CSRCS += _img_bg_analog_RGB565A8_128x160.c _img_clockwise_hour_RGB565A8_16x92.c _img_clockwise_min_RGB565A8_16x106.c _img_clockwise_sec_RGB565A8_22x136.c

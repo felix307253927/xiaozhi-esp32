@@ -12,10 +12,22 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "display/lcd_display.cc"
             "display/ssd1306_display.cc"
             "display/lcd_st7735_display.cc"
+            "display/guider_240_240.cc"
             "boards/lilygo-t-circle-s3/esp_lcd_gc9d01n.c"
             "protocols/protocol.cc"
             "iot/thing.cc"
             "iot/thing_manager.cc"
+            "ui/custom/custom.c"
+            "ui/generated/images/_img_bg_analog_RGB565A8_128x160.c"
+            "ui/generated/images/_img_clockwise_hour_RGB565A8_16x92.c"
+            "ui/generated/images/_img_clockwise_min_RGB565A8_16x106.c"
+            "ui/generated/images/_img_clockwise_sec_RGB565A8_22x136.c"
+            "ui/generated/guider_fonts/lv_font_montserratMedium_10.c"
+            "ui/generated/events_init.c"
+            "ui/generated/gui_guider.c"
+            "ui/generated/widgets_init.c"
+            "ui/generated/setup_scr_home_analog.c"
+            "ui/generated/setup_scr_home.c"
             "system_info.cc"
             "application.cc"
             "ota.cc"
@@ -24,7 +36,7 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "main.cc"
             )
 
-set(INCLUDE_DIRS "." "display" "audio_codecs" "protocols" "audio_processing")
+set(INCLUDE_DIRS "." "display" "audio_codecs" "protocols" "audio_processing" "ui" "ui/custom" "ui/generated")
 
 # 添加 IOT 相关文件
 file(GLOB IOT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/iot/things/*.cc)
