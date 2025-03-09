@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-02 21:39:41
+ * @LastEditTime       : 2025-03-08 10:37:06
  */
 #include "guider_240_240.h"
 #include "gui_guider.h"
@@ -44,20 +44,6 @@ LcdGui240Display::LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
     width_ = width;
     height_ = height;
 
-    // 创建背光渐变定时器
-    const esp_timer_create_args_t timer_args = {
-        .callback = [](void *arg)
-        {
-            LcdGui240Display *display = static_cast<LcdGui240Display *>(arg);
-            display->OnBacklightTimer();
-        },
-        .arg = this,
-        .dispatch_method = ESP_TIMER_TASK,
-        .name = "backlight_timer",
-        .skip_unhandled_events = true,
-    };
-    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &backlight_timer_));
-
     esp_timer_create_args_t notification_timer_args = {
         .callback = [](void *arg)
         {
@@ -74,8 +60,6 @@ LcdGui240Display::LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
         .skip_unhandled_events = false,
     };
     ESP_ERROR_CHECK(esp_timer_create(&notification_timer_args, &notification_timer_));
-
-    InitializeBacklight(backlight_pin);
 
     // draw white
     std::vector<uint16_t> buffer(width_, 0x0000);
@@ -139,8 +123,6 @@ LcdGui240Display::LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
     // 初始化gui_guider UI
     setup_ui(&guider_ui);
 
-    // 在设置UI之前初始化时间同步
-    SetBacklight(brightness_);
     // 设置全局字体
     lv_obj_set_style_text_font(lv_screen_active(), fonts_.text_font, 0);
     // 设置全局字体颜色
@@ -151,11 +133,6 @@ LcdGui240Display::LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
 
 LcdGui240Display::~LcdGui240Display()
 {
-    if (backlight_timer_ != nullptr)
-    {
-        esp_timer_stop(backlight_timer_);
-        esp_timer_delete(backlight_timer_);
-    }
     if (notification_timer_ != nullptr)
     {
         esp_timer_stop(notification_timer_);
@@ -179,80 +156,6 @@ LcdGui240Display::~LcdGui240Display()
     }
 
     instance_ = nullptr;
-}
-
-void LcdGui240Display::InitializeBacklight(gpio_num_t backlight_pin)
-{
-    if (backlight_pin == GPIO_NUM_NC)
-    {
-        return;
-    }
-
-    // Setup LEDC peripheral for PWM backlight control
-    const ledc_channel_config_t backlight_channel = {
-        .gpio_num = backlight_pin,
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = LCD_LEDC_CH,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_0,
-        .duty = 0,
-        .hpoint = 0,
-        .flags = {
-            .output_invert = backlight_output_invert_,
-        }};
-    const ledc_timer_config_t backlight_timer = {
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .duty_resolution = LEDC_TIMER_10_BIT,
-        .timer_num = LEDC_TIMER_0,
-        .freq_hz = 20000, // 背光pwm频率需要高一点，防止电感啸叫
-        .clk_cfg = LEDC_AUTO_CLK,
-        .deconfigure = false};
-
-    ESP_ERROR_CHECK(ledc_timer_config(&backlight_timer));
-    ESP_ERROR_CHECK(ledc_channel_config(&backlight_channel));
-}
-
-void LcdGui240Display::OnBacklightTimer()
-{
-    if (current_brightness_ < brightness_)
-    {
-        current_brightness_++;
-    }
-    else if (current_brightness_ > brightness_)
-    {
-        current_brightness_--;
-    }
-
-    // LEDC resolution set to 10bits, thus: 100% = 1023
-    uint32_t duty_cycle = (1023 * current_brightness_) / 100;
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LCD_LEDC_CH, duty_cycle);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LCD_LEDC_CH);
-
-    if (current_brightness_ == brightness_)
-    {
-        esp_timer_stop(backlight_timer_);
-    }
-}
-
-void LcdGui240Display::SetBacklight(uint8_t brightness)
-{
-    if (backlight_pin_ == GPIO_NUM_NC)
-    {
-        return;
-    }
-
-    if (brightness > 100)
-    {
-        brightness = 100;
-    }
-
-    ESP_LOGI(TAG, "Setting LCD backlight: %d%%", brightness);
-    // 停止现有的定时器（如果正在运行）
-    esp_timer_stop(backlight_timer_);
-
-    Display::SetBacklight(brightness);
-    // 启动定时器，每 5ms 更新一次
-    ESP_ERROR_CHECK(esp_timer_start_periodic(backlight_timer_, 5 * 1000));
 }
 
 void LcdGui240Display::Update()

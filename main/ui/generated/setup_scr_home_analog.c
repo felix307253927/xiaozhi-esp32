@@ -1,4 +1,11 @@
 /*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-03-08 09:56:01
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-09 13:24:48
+ */
+/*
 * Copyright 2025 NXP
 * NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly in
 * accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
@@ -23,7 +30,7 @@ void setup_scr_home_analog(lv_ui *ui)
 {
     //Write codes home_analog
     ui->home_analog = lv_obj_create(NULL);
-    lv_obj_set_size(ui->home_analog, 128, 128);
+    lv_obj_set_size(ui->home_analog, 240, 240);
     lv_obj_set_scrollbar_mode(ui->home_analog, LV_SCROLLBAR_MODE_OFF);
 
     //Write style for home_analog, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
@@ -39,7 +46,7 @@ void setup_scr_home_analog(lv_ui *ui)
     static const char * home_analog_analog_clock_1_hour_ticks[] = {"12", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", NULL};
     ui->home_analog_analog_clock_1 = lv_scale_create(ui->home_analog);
     lv_obj_set_pos(ui->home_analog_analog_clock_1, 5, 5);
-    lv_obj_set_size(ui->home_analog_analog_clock_1, 118, 118);
+    lv_obj_set_size(ui->home_analog_analog_clock_1, 238, 238);
     lv_scale_set_mode(ui->home_analog_analog_clock_1, LV_SCALE_MODE_ROUND_INNER);
     lv_scale_set_angle_range(ui->home_analog_analog_clock_1, 360U);
     lv_scale_set_range(ui->home_analog_analog_clock_1, 0U, 60U);

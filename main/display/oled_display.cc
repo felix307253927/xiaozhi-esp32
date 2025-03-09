@@ -164,7 +164,7 @@ void OledDisplay::SetupUI_128x64() {
     /* Content */
     network_label_ = lv_label_create(content_);
     lv_label_set_text(network_label_, "");
-    lv_obj_set_style_text_font(network_label_, icon_font_, 0);
+    lv_obj_set_style_text_font(network_label_, fonts_.icon_font, 0);
     lv_obj_set_style_text_align(network_label_, LV_TEXT_ALIGN_CENTER, 0);
 
     // 创建左侧固定宽度的容器

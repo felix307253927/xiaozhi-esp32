@@ -15,7 +15,6 @@
 #include "custom.h"
 
 
-
 void setup_scr_home(lv_ui *ui)
 {
     //Write codes home
@@ -121,7 +120,7 @@ void setup_scr_home(lv_ui *ui)
     lv_obj_set_pos(ui->home_network_label_, 0, 0);
     lv_obj_set_size(ui->home_network_label_, 18, 18);
     lv_label_set_text(ui->home_network_label_, "");
-
+    // lv_obj_set_style_text_font(ui->home_network_label_, fonts_.icon_font, 0);
     //Write codes home_status_label_
     ui->home_status_label_ = lv_label_create(ui->home);
     lv_obj_set_pos(ui->home_status_label_, 4, 108);

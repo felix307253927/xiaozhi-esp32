@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-23 10:02:52
+ * @LastEditTime       : 2025-03-09 13:23:19
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
@@ -34,8 +34,8 @@
 #define DISPLAY_RST_PIN       GPIO_NUM_18
 #define DISPLAY_CS_PIN        GPIO_NUM_14                  
 
-#define DISPLAY_WIDTH   128
-#define DISPLAY_HEIGHT  160
+#define DISPLAY_WIDTH   240
+#define DISPLAY_HEIGHT  240
 #define DISPLAY_MIRROR_X false
 #define DISPLAY_MIRROR_Y false
 #define DISPLAY_SWAP_XY false

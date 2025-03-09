@@ -42,8 +42,6 @@ protected:
 
     DisplayFonts fonts_;
 
-    esp_timer_handle_t backlight_timer_ = nullptr;
-    uint8_t current_brightness_ = 0;
     lv_obj_t* time_label_ = nullptr;
     esp_timer_handle_t time_timer_ = nullptr;
     esp_timer_handle_t sync_timer_ = nullptr;
@@ -52,8 +50,6 @@ protected:
     esp_timer_handle_t status_timer_ = nullptr;  // 添加状态显示定时器
     void OnStatusTimer();  // 添加状态定时器回调
 
-    void OnBacklightTimer();
-    void InitializeBacklight(gpio_num_t backlight_pin);
     void InitTimeSync();
     static void OnTimeSync(struct timeval *tv);
     void RetryTimeSync();
@@ -73,7 +69,6 @@ public:
 
     virtual void SetEmotion(const char* emotion) override;
     virtual void SetIcon(const char* icon) override;
-    virtual void SetBacklight(uint8_t brightness) override;
     virtual void SetStatus(const char* status) override;
 };
 

@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:28:09
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-02 20:45:00
+ * @LastEditTime       : 2025-03-08 10:37:36
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -52,13 +52,9 @@ protected:
 
     DisplayFonts fonts_;
 
-    esp_timer_handle_t backlight_timer_ = nullptr;
-    uint8_t current_brightness_ = 0;
     lv_obj_t *time_label_ = nullptr;
     int show_home_screen_count = 0;
 
-    void OnBacklightTimer();
-    void InitializeBacklight(gpio_num_t backlight_pin);
     virtual bool Lock(int timeout_ms = 0) override;
     virtual void Unlock() override;
     virtual void Update() override;
@@ -75,7 +71,6 @@ public:
 
     virtual void SetEmotion(const char *emotion) override;
     virtual void SetIcon(const char *icon) override;
-    virtual void SetBacklight(uint8_t brightness) override;
     virtual void SetStatus(const char *status) override;
     virtual void SetChatMessage(const char* role, const char* content) override;
     virtual void ShowNotification(const std::string &notification, int duration_ms) override;
