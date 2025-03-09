@@ -1,14 +1,12 @@
 set(SOURCES "audio_codecs/audio_codec.cc"
             "audio_codecs/no_audio_codec.cc"
             "audio_codecs/box_audio_codec.cc"
-            "audio_codecs/box_audio_codec_lite.cc"
             "audio_codecs/es8311_audio_codec.cc"
             "audio_codecs/es8388_audio_codec.cc"
             "led/single_led.cc"
             "led/circular_strip.cc"
             "led/gpio_led.cc"
             "display/display.cc"
-            "display/no_display.cc"
             "display/lcd_display.cc"
             "display/oled_display.cc"
             "display/lcd_st7735_display.cc"
@@ -166,8 +164,12 @@ endif()
 # 根据Kconfig选择语言目录
 if(CONFIG_LANGUAGE_ZH_CN)
     set(LANG_DIR "zh-CN")
+elseif(CONFIG_LANGUAGE_ZH_TW)
+    set(LANG_DIR "zh-TW")
 elseif(CONFIG_LANGUAGE_EN_US)
     set(LANG_DIR "en-US")
+elseif(CONFIG_LANGUAGE_JA_JP)
+    set(LANG_DIR "ja-JP")
 endif()
 
 # 定义生成路径
@@ -179,7 +181,9 @@ file(GLOB COMMON_SOUNDS ${CMAKE_CURRENT_SOURCE_DIR}/assets/common/*.p3)
 # 如果目标芯片是 ESP32，则排除特定文件
 if(CONFIG_IDF_TARGET_ESP32)
     list(REMOVE_ITEM SOURCES "audio_codecs/box_audio_codec.cc"
-                             "audio_codecs/es8388_audio_codec.cc")
+                             "audio_codecs/es8388_audio_codec.cc"
+                             "led/gpio_led.cc"
+                             )
 endif()
 
 idf_component_register(SRCS ${SOURCES}
