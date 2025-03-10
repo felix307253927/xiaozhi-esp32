@@ -63,8 +63,13 @@ protected:
 
 public:
     static LcdGui240Display *GetInstance() { return instance_; } // 添加获取实例的方法
+    public:
+    // LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
+    //                 int width, int height, int offset_x, int offset_y,
+    //                 bool mirror_x, bool mirror_y, bool swap_xy,
+    //                 DisplayFonts fonts);
+    // };
     LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                     gpio_num_t backlight_pin, bool backlight_output_invert,
                      int width, int height, int offset_x, int offset_y, bool mirror_x, bool mirror_y, bool swap_xy,
                      DisplayFonts fonts);
     ~LcdGui240Display();

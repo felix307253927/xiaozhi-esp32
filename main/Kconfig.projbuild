@@ -139,6 +139,8 @@ choice BOARD_TYPE
         bool "无名科技星智1.54"
     config BOARD_TYPE_QIQI_TFT
         bool "琦琦1.8寸TFT"
+    config BOARD_TYPE_MOJI_TFT
+        bool "Moji1.28寸TFT"
     config BOARD_TYPE_XINGZHI_Cube_0_96OLED_WIFI
         bool "无名科技星智0.96(WIFI)"
     config BOARD_TYPE_XINGZHI_Cube_0_96OLED_ML307

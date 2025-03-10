@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-08 10:37:06
+ * @LastEditTime       : 2025-03-09 16:33:15
  */
 #include "guider_240_240.h"
 #include "gui_guider.h"
@@ -33,10 +33,9 @@ lv_ui guider_ui;
 LcdGui240Display *LcdGui240Display::instance_ = nullptr;
 
 LcdGui240Display::LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                                   gpio_num_t backlight_pin, bool backlight_output_invert,
                                    int width, int height, int offset_x, int offset_y, bool mirror_x, bool mirror_y, bool swap_xy,
                                    DisplayFonts fonts)
-    : panel_io_(panel_io), panel_(panel), backlight_pin_(backlight_pin), backlight_output_invert_(backlight_output_invert),
+    : panel_io_(panel_io), panel_(panel),
       fonts_(fonts)
 {
     instance_ = this;
@@ -125,6 +124,8 @@ LcdGui240Display::LcdGui240Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
 
     // 设置全局字体
     lv_obj_set_style_text_font(lv_screen_active(), fonts_.text_font, 0);
+    // 设置network_label_字体
+    lv_obj_set_style_text_font(guider_ui.home_network_label_, fonts_.icon_font, 0);
     // 设置全局字体颜色
     lv_obj_set_style_text_color(lv_screen_active(), lv_color_white(), 0);
     // 设置全局背景颜色
@@ -256,10 +257,6 @@ void LcdGui240Display::UpdateTime()
     home_analog_analog_clock_1_hour_value = (timeinfo.tm_hour % 12 + 12 - 3) % 12; // 转换为12小时制
 
     // 更新数字时间标签
-    if (guider_ui.home_time_label_ != nullptr && !lv_obj_has_flag(guider_ui.home, LV_OBJ_FLAG_HIDDEN))
-    {
-        lv_label_set_text(guider_ui.home_time_label_, time_str);
-    }
     show_home_screen_count++;
     // 每15秒切换analog
     if (show_home_screen_count > 15)
@@ -283,7 +280,7 @@ void LcdGui240Display::SetStatus(const char *status)
 {
     DisplayLockGuard lock(this);
     ESP_LOGI(TAG, "Set status: %s", status);
-    ShowHome();
+    // ShowHome();
     if (guider_ui.home_status_label_ != nullptr)
     {
         lv_label_set_text(guider_ui.home_status_label_, status);
@@ -362,6 +359,7 @@ void LcdGui240Display::SetEmotion(const char *emotion)
     ShowHome(false); // 显示聊天界面但不启动自动切换定时器
 
     lv_obj_set_style_text_font(guider_ui.home_emotion_label_, fonts_.emoji_font, 0);
+    lv_obj_set_style_text_line_space(guider_ui.home_emotion_label_, 0, 0);    
 
     // 如果找到匹配的表情就显示对应图标，否则显示默认的neutral表情
     if (it != emotions.end())

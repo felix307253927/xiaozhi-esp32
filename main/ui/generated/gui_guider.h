@@ -30,7 +30,6 @@ typedef struct
 	lv_obj_t *home_chat_message_label_;
 	lv_obj_t *home_emotion_label_;
 	lv_obj_t *home_notification_label_;
-	lv_obj_t *home_time_label_;
 	lv_obj_t *home_network_label_;
 	lv_obj_t *home_status_label_;
 }lv_ui;
@@ -63,10 +62,13 @@ extern lv_ui guider_ui;
 void setup_scr_home_analog(lv_ui *ui);
 void setup_scr_home(lv_ui *ui);
 
-LV_IMAGE_DECLARE(_img_bg_analog_RGB565A8_128x160);
-LV_IMAGE_DECLARE(_img_clockwise_hour_RGB565A8_16x92);
+LV_IMAGE_DECLARE(_nezha_RGB565A8_240x240);
+LV_IMAGE_DECLARE(_img_clockwise_hour_RGB565A8_16x60);
 LV_IMAGE_DECLARE(_img_clockwise_min_RGB565A8_16x106);
 LV_IMAGE_DECLARE(_img_clockwise_sec_RGB565A8_22x136);
+
+LV_FONT_DECLARE(lv_font_montserratMedium_10)
+LV_FONT_DECLARE(lv_font_montserratMedium_16)
 
 
 #ifdef __cplusplus

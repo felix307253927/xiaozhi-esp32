@@ -101,8 +101,8 @@ void home_analog_analog_clock_1_timer(lv_timer_t *timer)
     clock_count(&home_analog_analog_clock_1_hour_value, &home_analog_analog_clock_1_min_value, &home_analog_analog_clock_1_sec_value);
     if (lv_obj_is_valid(guider_ui.home_analog_analog_clock_1))
     {
-        lv_scale_set_image_needle_value(guider_ui.home_analog_analog_clock_1, guider_ui.home_analog_analog_clock_1_hour_needle, home_analog_analog_clock_1_hour_value * 5);
-        lv_scale_set_image_needle_value(guider_ui.home_analog_analog_clock_1, guider_ui.home_analog_analog_clock_1_min_needle, home_analog_analog_clock_1_min_value);
+        lv_scale_set_line_needle_value(guider_ui.home_analog_analog_clock_1, guider_ui.home_analog_analog_clock_1_hour_needle, 45, home_analog_analog_clock_1_hour_value * 5);
+        lv_scale_set_line_needle_value(guider_ui.home_analog_analog_clock_1, guider_ui.home_analog_analog_clock_1_min_needle, 80, home_analog_analog_clock_1_min_value);
         lv_scale_set_image_needle_value(guider_ui.home_analog_analog_clock_1, guider_ui.home_analog_analog_clock_1_sec_needle, home_analog_analog_clock_1_sec_value);
     }
 }

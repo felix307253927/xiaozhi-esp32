@@ -17,11 +17,12 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "iot/thing.cc"
             "iot/thing_manager.cc"
             "ui/custom/custom.c"
-            "ui/generated/images/_img_bg_analog_RGB565A8_128x160.c"
-            "ui/generated/images/_img_clockwise_hour_RGB565A8_16x92.c"
+            "ui/generated/images/_img_clockwise_hour_RGB565A8_16x60.c"
             "ui/generated/images/_img_clockwise_min_RGB565A8_16x106.c"
             "ui/generated/images/_img_clockwise_sec_RGB565A8_22x136.c"
+            "ui/generated/images/_nezha_RGB565A8_240x240.c"
             "ui/generated/guider_fonts/lv_font_montserratMedium_10.c"
+            "ui/generated/guider_fonts/lv_font_montserratMedium_16.c"
             "ui/generated/events_init.c"
             "ui/generated/gui_guider.c"
             "ui/generated/widgets_init.c"
@@ -131,6 +132,8 @@ elseif(CONFIG_BOARD_TYPE_XINGZHI_Cube_TFT)
     set(BOARD_TYPE "xingzhi-cube-tft")
 elseif(CONFIG_BOARD_TYPE_QIQI_TFT)
     set(BOARD_TYPE "qiqi-tft")
+elseif(CONFIG_BOARD_TYPE_MOJI_TFT)
+    set(BOARD_TYPE "moji-tft")
 elseif(CONFIG_BOARD_TYPE_XINGZHI_Cube_0_96OLED_WIFI)
     set(BOARD_TYPE "xingzhi-cube-0.96oled-wifi")
 elseif(CONFIG_BOARD_TYPE_XINGZHI_Cube_0_96OLED_ML307)

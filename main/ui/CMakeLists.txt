@@ -53,10 +53,3 @@ target_link_libraries (gui_guider PUBLIC lvgl ${PKG_WAYLAND_LIBRARIES} ${PKG_LIB
 target_include_directories(gui_guider PRIVATE generated custom generated/guider_customer_fonts generated/guider_fonts generated/images)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/gui_guider DESTINATION bin)
-
-idf_component_register(
-    SRCS "guider_240_240.cc" ...
-    INCLUDE_DIRS "."
-)
-
-target_compile_options(${COMPONENT_LIB} PRIVATE -O2)  # 优化代码大小
