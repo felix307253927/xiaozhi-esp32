@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-11 21:47:24
+ * @LastEditTime       : 2025-03-11 23:16:09
  */
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
@@ -77,7 +77,7 @@ private:
         esp_lcd_panel_invert_color(panel, DISPLAY_INVERT_COLOR);
         esp_lcd_panel_swap_xy(panel, DISPLAY_SWAP_XY);
         esp_lcd_panel_mirror(panel, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
-        display_ = new LcdGui240Display(panel_io, panel, DISPLAY_BACKLIGHT_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT,
+        display_ = new LcdGui240Display(panel_io, panel,
                                         DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY,
                                         {
                                             .text_font = &font_puhui_16_4,
@@ -147,19 +147,19 @@ public:
         InitializeLcdDisplay();
         InitializeButtons();
         InitializeIot();
-        BtMusicPlayer::GetInstance().Init("ESP32_BT_Speaker");
+        BtA2dpSink::GetInstance().Init("ESP32_BT_Speaker");
 
         // 播放
-        // BtMusicPlayer::GetInstance().Play();
+        // BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_PLAY);
 
         // // 暂停
-        // BtMusicPlayer::GetInstance().Pause();
+        // BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_PAUSE);
 
         // // 下一首
-        // BtMusicPlayer::GetInstance().Next();
+        // BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_FORWARD);
 
         // // 设置音量
-        // BtMusicPlayer::GetInstance().SetVolume(80);
+        // BtA2dpSink::GetInstance().SetVolume(80);
     }
 
     virtual Led *GetLed() override
@@ -182,20 +182,20 @@ public:
 
     ~qiqitft()
     {
-        BtMusicPlayer::GetInstance().Deinit();
+        BtA2dpSink::GetInstance().Deinit();
     }
 
     // 检查连接状态
     void CheckConnection()
     {
-        if (BtMusicPlayer::GetInstance().IsConnected()) {
+        if (BtA2dpSink::GetInstance().IsConnected()) {
             // 获取连接的设备名称
-            std::string device_name = BtMusicPlayer::GetInstance().GetConnectedDeviceName();
+            std::string device_name = BtA2dpSink::GetInstance().GetConnectedDeviceName();
             ESP_LOGI(TAG, "Connected to device: %s", device_name.c_str());
         }
 
         // 检查播放状态
-        if (BtMusicPlayer::GetInstance().IsPlaying()) {
+        if (BtA2dpSink::GetInstance().IsPlaying()) {
             ESP_LOGI(TAG, "Music is playing");
         }
     }
