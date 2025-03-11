@@ -16,6 +16,9 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "protocols/protocol.cc"
             "iot/thing.cc"
             "iot/thing_manager.cc"
+            "bluetooth/bt_a2dp_sink.cc"
+            "bluetooth/bt_audio_codec.cc"
+            "bluetooth/bt_music_player.cc"
             "ui/custom/custom.c"
             "ui/generated/images/_img_clockwise_hour_RGB565A8_16x60.c"
             "ui/generated/images/_img_clockwise_min_RGB565A8_16x106.c"
@@ -36,7 +39,7 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "main.cc"
             )
 
-set(INCLUDE_DIRS "." "display" "audio_codecs" "protocols" "audio_processing" "ui" "ui/custom" "ui/generated")
+set(INCLUDE_DIRS "." "display" "audio_codecs" "protocols" "audio_processing" "ui" "ui/custom" "ui/generated" "bluetooth")
 
 # 添加 IOT 相关文件
 file(GLOB IOT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/iot/things/*.cc)
@@ -192,6 +195,7 @@ endif()
 idf_component_register(SRCS ${SOURCES}
                     EMBED_FILES ${LANG_SOUNDS} ${COMMON_SOUNDS}
                     INCLUDE_DIRS ${INCLUDE_DIRS}
+                    REQUIRES bt
                     WHOLE_ARCHIVE
                     )
 

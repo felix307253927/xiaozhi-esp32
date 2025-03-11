@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-09 13:22:00
+ * @LastEditTime       : 2025-03-11 21:47:24
  */
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
@@ -21,7 +21,7 @@
 #include <esp_lcd_panel_vendor.h>
 #include <driver/spi_common.h>
 #include <esp_timer.h>
-
+#include "bt_a2dp_sink.h"
 #define TAG "qiqitft"
 
 LV_FONT_DECLARE(font_puhui_16_4);
@@ -147,6 +147,19 @@ public:
         InitializeLcdDisplay();
         InitializeButtons();
         InitializeIot();
+        BtMusicPlayer::GetInstance().Init("ESP32_BT_Speaker");
+
+        // 播放
+        // BtMusicPlayer::GetInstance().Play();
+
+        // // 暂停
+        // BtMusicPlayer::GetInstance().Pause();
+
+        // // 下一首
+        // BtMusicPlayer::GetInstance().Next();
+
+        // // 设置音量
+        // BtMusicPlayer::GetInstance().SetVolume(80);
     }
 
     virtual Led *GetLed() override
@@ -165,6 +178,26 @@ public:
     virtual Display *GetDisplay() override
     {
         return display_;
+    }
+
+    ~qiqitft()
+    {
+        BtMusicPlayer::GetInstance().Deinit();
+    }
+
+    // 检查连接状态
+    void CheckConnection()
+    {
+        if (BtMusicPlayer::GetInstance().IsConnected()) {
+            // 获取连接的设备名称
+            std::string device_name = BtMusicPlayer::GetInstance().GetConnectedDeviceName();
+            ESP_LOGI(TAG, "Connected to device: %s", device_name.c_str());
+        }
+
+        // 检查播放状态
+        if (BtMusicPlayer::GetInstance().IsPlaying()) {
+            ESP_LOGI(TAG, "Music is playing");
+        }
     }
 };
 
