@@ -127,10 +127,12 @@ void BtAudioCodec::OnA2dpAudioData(const uint8_t* data, uint32_t len) {
     BaseType_t ret = xRingbufferSend(audio_ring_buffer_, data, len, pdMS_TO_TICKS(10));
     if (ret != pdTRUE) {
         ESP_LOGW(TAG, "Failed to write audio data to ring buffer");
+        return;
     }
     
     // 通知音频输出就绪
-    if (on_output_ready_) {
-        on_output_ready_();
-    }
+    size_t samples = len / sizeof(int16_t);  // 计算样本数
+    std::vector<int16_t> audio_data(samples);
+    memcpy(audio_data.data(), data, len);
+    OutputData(audio_data);  // 使用基类的 OutputData 方法
 } 

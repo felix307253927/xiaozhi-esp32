@@ -58,7 +58,7 @@ private:
     ~BtMusicPlayer();
     
     std::unique_ptr<BtAudioCodec> audio_codec_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     bool initialized_ = false;
 };
 

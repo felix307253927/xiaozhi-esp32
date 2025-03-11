@@ -1,6 +1,12 @@
 #include "bt_a2dp_sink.h"
 #include <esp_log.h>
 #include <string.h>
+#include "nvs_flash.h"
+#include "esp_bt_device.h"
+#include "esp_gap_bt_api.h"
+#include "esp_avrc_api.h"
+#include "esp_bt_main.h"
+#include "esp_bt_defs.h"
 
 #define TAG "BtA2dpSink"
 
@@ -109,8 +115,8 @@ bool BtA2dpSink::Init(const std::string& device_name) {
     
     // 设置COD
     esp_bt_cod_t cod;
-    cod.major = ESP_BT_COD_MAJOR_DEV_AUDIO;
-    cod.minor = ESP_BT_COD_MINOR_AUDIO_HIFI;
+    cod.major = ESP_BT_COD_MAJOR_DEV_AV;  // 音频/视频设备
+    cod.minor = 0x01;  // 使用音频设备的minor类型
     cod.service = ESP_BT_COD_SRVC_RENDERING | ESP_BT_COD_SRVC_AUDIO;
     esp_bt_gap_set_cod(cod, ESP_BT_SET_COD_MAJOR_MINOR);
     
@@ -248,8 +254,9 @@ void BtA2dpSink::ProcessAvrcMetadata(uint8_t attr_id, const uint8_t* attr_value,
 
 void BtA2dpSink::ProcessAvrcNotification(uint8_t event_id, esp_avrc_rn_param_t* event_parameter) {
     switch (event_id) {
-        case ESP_AVRC_RN_PLAY_STATUS_CHANGE:
-            switch (event_parameter->play_status) {
+        case ESP_AVRC_RN_PLAY_STATUS_CHANGE: {
+            esp_avrc_playback_stat_t play_status = event_parameter->playback;
+            switch (play_status) {
                 case ESP_AVRC_PLAYBACK_PLAYING:
                     ESP_LOGI(TAG, "Play status: Playing");
                     playing_ = true;
@@ -263,10 +270,11 @@ void BtA2dpSink::ProcessAvrcNotification(uint8_t event_id, esp_avrc_rn_param_t* 
                     playing_ = false;
                     break;
                 default:
-                    ESP_LOGI(TAG, "Play status: %d", event_parameter->play_status);
+                    ESP_LOGI(TAG, "Play status: %d", play_status);
                     break;
             }
             break;
+        }
         case ESP_AVRC_RN_TRACK_CHANGE:
             ESP_LOGI(TAG, "Track changed");
             break;
@@ -297,12 +305,12 @@ void BtA2dpSink::BtAppGapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_par
             break;
         }
         case ESP_BT_GAP_CFM_REQ_EVT: {
-            ESP_LOGI(TAG, "ESP_BT_GAP_CFM_REQ_EVT, Please compare the numeric value: %d", param->cfm_req.num_val);
+            ESP_LOGI(TAG, "ESP_BT_GAP_CFM_REQ_EVT, Please compare the numeric value: %lu", (unsigned long)param->cfm_req.num_val);
             esp_bt_gap_ssp_confirm_reply(param->cfm_req.bda, true);
             break;
         }
         case ESP_BT_GAP_KEY_NOTIF_EVT: {
-            ESP_LOGI(TAG, "ESP_BT_GAP_KEY_NOTIF_EVT, Passkey: %d", param->key_notif.passkey);
+            ESP_LOGI(TAG, "ESP_BT_GAP_KEY_NOTIF_EVT, Passkey: %lu", (unsigned long)param->key_notif.passkey);
             break;
         }
         case ESP_BT_GAP_KEY_REQ_EVT: {
@@ -356,19 +364,14 @@ void BtA2dpSink::BtAppA2dCallback(esp_a2d_cb_event_t event, esp_a2d_cb_param_t* 
         }
         case ESP_A2D_AUDIO_STATE_EVT: {
             switch (param->audio_stat.state) {
-                case ESP_A2D_AUDIO_STATE_REMOTE_SUSPEND: {
-                    ESP_LOGI(TAG, "A2DP audio state: Suspended");
-                    g_bt_a2dp_sink->playing_ = false;
+                case ESP_A2D_AUDIO_STATE_STARTED: {
+                    ESP_LOGI(TAG, "A2DP audio state: Started");
+                    g_bt_a2dp_sink->playing_ = true;
                     break;
                 }
                 case ESP_A2D_AUDIO_STATE_STOPPED: {
                     ESP_LOGI(TAG, "A2DP audio state: Stopped");
                     g_bt_a2dp_sink->playing_ = false;
-                    break;
-                }
-                case ESP_A2D_AUDIO_STATE_STARTED: {
-                    ESP_LOGI(TAG, "A2DP audio state: Started");
-                    g_bt_a2dp_sink->playing_ = true;
                     break;
                 }
                 default: {
