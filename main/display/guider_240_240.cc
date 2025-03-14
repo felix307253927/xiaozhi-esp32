@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-09 16:33:15
+ * @LastEditTime       : 2025-03-12 22:19:05
  */
 #include "guider_240_240.h"
 #include "gui_guider.h"
@@ -185,31 +185,6 @@ void LcdGui240Display::Update()
     int battery_level;
     bool charging;
     const char *icon = nullptr;
-    if (board.GetBatteryLevel(battery_level, charging))
-    {
-        if (charging)
-        {
-            icon = FONT_AWESOME_BATTERY_CHARGING;
-        }
-        else
-        {
-            const char *levels[] = {
-                FONT_AWESOME_BATTERY_EMPTY, // 0-19%
-                FONT_AWESOME_BATTERY_1,     // 20-39%
-                FONT_AWESOME_BATTERY_2,     // 40-59%
-                FONT_AWESOME_BATTERY_3,     // 60-79%
-                FONT_AWESOME_BATTERY_FULL,  // 80-99%
-                FONT_AWESOME_BATTERY_FULL,  // 100%
-            };
-            icon = levels[battery_level / 20];
-        }
-        DisplayLockGuard lock(this);
-        if (battery_label_ != nullptr && battery_icon_ != icon)
-        {
-            battery_icon_ = icon;
-            lv_label_set_text(battery_label_, battery_icon_);
-        }
-    }
 
     // 升级固件时，不读取 4G 网络状态，避免占用 UART 资源
     auto device_state = Application::GetInstance().GetDeviceState();

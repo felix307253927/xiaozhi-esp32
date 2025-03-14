@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:28:09
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-01 13:53:36
+ * @LastEditTime       : 2025-03-12 22:28:55
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -62,7 +62,6 @@ protected:
 public:
     static LcdST7735Display* GetInstance() { return instance_; }  // 添加获取实例的方法
     LcdST7735Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                  gpio_num_t backlight_pin, bool backlight_output_invert,
                   int width, int height,  int offset_x, int offset_y, bool mirror_x, bool mirror_y, bool swap_xy,
                   DisplayFonts fonts);
     ~LcdST7735Display();

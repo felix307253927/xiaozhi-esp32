@@ -28,10 +28,9 @@ LV_FONT_DECLARE(font_awesome_30_4);
 LcdST7735Display* LcdST7735Display::instance_ = nullptr;
 
 LcdST7735Display::LcdST7735Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                           gpio_num_t backlight_pin, bool backlight_output_invert,
                            int width, int height, int offset_x, int offset_y, bool mirror_x, bool mirror_y, bool swap_xy,
                            DisplayFonts fonts)
-    : panel_io_(panel_io), panel_(panel), backlight_pin_(backlight_pin), backlight_output_invert_(backlight_output_invert),
+    : panel_io_(panel_io), panel_(panel),
       fonts_(fonts) {
     instance_ = this;
 

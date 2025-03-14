@@ -3,11 +3,11 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-09 13:22:00
+ * @LastEditTime       : 2025-03-12 22:27:26
  */
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
-#include "display/guider_240_240.h"
+#include "display/lcd_st7735_display.h"
 #include "system_reset.h"
 #include "application.h"
 #include "button.h"
@@ -33,7 +33,7 @@ private:
     Button boot_button_;
     Button volume_up_button_;
     Button volume_down_button_;
-    LcdGui240Display *display_;
+    LcdST7735Display *display_;
 
     void InitializeSpi()
     {
@@ -77,7 +77,7 @@ private:
         esp_lcd_panel_invert_color(panel, DISPLAY_INVERT_COLOR);
         esp_lcd_panel_swap_xy(panel, DISPLAY_SWAP_XY);
         esp_lcd_panel_mirror(panel, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
-        display_ = new LcdGui240Display(panel_io, panel, DISPLAY_BACKLIGHT_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT,
+        display_ = new LcdST7735Display(panel_io, panel,
                                         DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY,
                                         {
                                             .text_font = &font_puhui_16_4,
