@@ -1,138 +1,78 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-03-15 14:19:30
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-15 14:19:53
+ */
 #include "bt_audio_codec.h"
-#include <esp_log.h>
-#include <string.h>
+#include "esp_log.h"
+#include <algorithm>
 
-#define TAG "BtAudioCodec"
-#define RING_BUFFER_SIZE (8 * 1024)
+static const char* TAG = "BtAudioCodec";
 
-BtAudioCodec::BtAudioCodec(int output_sample_rate, int output_channels)
-    : audio_ring_buffer_(nullptr) {
-    // 设置音频参数
-    output_sample_rate_ = output_sample_rate;
-    output_channels_ = output_channels;
-    input_sample_rate_ = 0;  // 不使用输入
-    input_channels_ = 0;     // 不使用输入
-    
-    // 创建环形缓冲区
-    audio_ring_buffer_ = xRingbufferCreate(RING_BUFFER_SIZE, RINGBUF_TYPE_BYTEBUF);
-    if (audio_ring_buffer_ == nullptr) {
-        ESP_LOGE(TAG, "Failed to create ring buffer");
+namespace xiaozhi {
+
+BtAudioCodec::BtAudioCodec() : AudioCodec() {
+    output_channels_ = 2;  // A2DP通常是立体声
+    output_sample_rate_ = 44100;  // 标准A2DP采样率
+    ESP_LOGI(TAG, "BtAudioCodec initialized");
+}
+
+BtAudioCodec& BtAudioCodec::GetInstance() {
+    static BtAudioCodec instance;
+    return instance;
+}
+
+void BtAudioCodec::ProcessData(const uint8_t* data, uint32_t len) {
+    if (!data || len == 0) {
+        return;
     }
-    
-    // 设置设备名称
-    device_name_ = "ESP32_BT_Speaker";
-    
-    // 初始化A2DP接收器
-    BtA2dpSink::GetInstance().Init(device_name_);
-    
-    // 设置音频数据回调
-    BtA2dpSink::GetInstance().SetAudioDataCallback(
-        std::bind(&BtAudioCodec::OnA2dpAudioData, this, std::placeholders::_1, std::placeholders::_2));
-    
-    ESP_LOGI(TAG, "BtAudioCodec initialized, device name: %s", device_name_.c_str());
-}
 
-BtAudioCodec::~BtAudioCodec() {
-    // 反初始化A2DP接收器
-    BtA2dpSink::GetInstance().Deinit();
-    
-    // 销毁环形缓冲区
-    if (audio_ring_buffer_ != nullptr) {
-        vRingbufferDelete(audio_ring_buffer_);
-        audio_ring_buffer_ = nullptr;
-    }
-    
-    ESP_LOGI(TAG, "BtAudioCodec deinitialized");
-}
+    std::lock_guard<std::mutex> lock(buffer_mutex_);
 
-void BtAudioCodec::SetOutputVolume(int volume) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    // 调用父类方法设置本地音量
-    AudioCodec::SetOutputVolume(volume);
-    
-    // 设置蓝牙音量
-    BtA2dpSink::GetInstance().SetVolume(volume);
-}
+    // 将8位无符号数据转换为16位有符号数据
+    size_t samples = len / sizeof(uint8_t);
+    std::vector<int16_t> pcm_data(samples);
 
-void BtAudioCodec::EnableInput(bool enable) {
-    // 蓝牙A2DP接收器不支持输入
-    ESP_LOGW(TAG, "BtAudioCodec does not support input");
-}
+    for (size_t i = 0; i < samples; i++) {
+        // 将8位无符号数据(0-255)转换为16位有符号数据(-32768到32767)
+        pcm_data[i] = (static_cast<int16_t>(data[i]) - 128) << 8;
 
-void BtAudioCodec::EnableOutput(bool enable) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    output_enabled_ = enable;
-    
-    if (enable) {
-        ESP_LOGI(TAG, "BtAudioCodec output enabled");
-    } else {
-        ESP_LOGI(TAG, "BtAudioCodec output disabled");
+        // 只有在缓冲区未满的情况下才添加数据
+        if (audio_buffer_.size() < MAX_BUFFER_SIZE) {
+            audio_buffer_.push(pcm_data[i]);
+        }
     }
 }
 
-bool BtAudioCodec::IsConnected() const {
-    return BtA2dpSink::GetInstance().IsConnected();
+void BtAudioCodec::SetVolume(uint8_t volume) {
+    volume_ = volume;
+    // 将蓝牙音量(0-127)转换为AudioCodec音量(0-100)
+    int codec_volume = (volume * 100) / 127;
+    SetOutputVolume(codec_volume);
 }
 
-bool BtAudioCodec::IsPlaying() const {
-    return BtA2dpSink::GetInstance().IsPlaying();
-}
-
-std::string BtAudioCodec::GetConnectedDeviceName() const {
-    return BtA2dpSink::GetInstance().GetConnectedDeviceName();
-}
-
-std::string BtAudioCodec::GetConnectedDeviceAddress() const {
-    return BtA2dpSink::GetInstance().GetConnectedDeviceAddress();
-}
-
-bool BtAudioCodec::Play() {
-    return BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_PLAY);
-}
-
-bool BtAudioCodec::Pause() {
-    return BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_PAUSE);
-}
-
-bool BtAudioCodec::Stop() {
-    return BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_STOP);
-}
-
-bool BtAudioCodec::Next() {
-    return BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_FORWARD);
-}
-
-bool BtAudioCodec::Previous() {
-    return BtA2dpSink::GetInstance().PlayControl(ESP_AVRC_PT_CMD_BACKWARD);
+uint8_t BtAudioCodec::GetVolume() const {
+    return volume_;
 }
 
 int BtAudioCodec::Read(int16_t* dest, int samples) {
-    // 蓝牙A2DP接收器不支持输入
+    // A2DP只处理音频输出，不需要实现读取
     return 0;
 }
 
 int BtAudioCodec::Write(const int16_t* data, int samples) {
-    // 蓝牙A2DP接收器不需要写入数据，因为数据是从蓝牙接收的
+    // 将音频数据写入音频缓冲区
+    std::lock_guard<std::mutex> lock(buffer_mutex_);
+    
+    for (int i = 0; i < samples; i++) {
+        if (audio_buffer_.size() < MAX_BUFFER_SIZE) {
+            audio_buffer_.push(data[i]);
+        }
+    }
+    
     return samples;
 }
 
-void BtAudioCodec::OnA2dpAudioData(const uint8_t* data, uint32_t len) {
-    if (audio_ring_buffer_ == nullptr || !output_enabled_) {
-        return;
-    }
-    
-    // 将A2DP音频数据写入环形缓冲区
-    BaseType_t ret = xRingbufferSend(audio_ring_buffer_, data, len, pdMS_TO_TICKS(10));
-    if (ret != pdTRUE) {
-        ESP_LOGW(TAG, "Failed to write audio data to ring buffer");
-        return;
-    }
-    
-    // 通知音频输出就绪
-    size_t samples = len / sizeof(int16_t);  // 计算样本数
-    std::vector<int16_t> audio_data(samples);
-    memcpy(audio_data.data(), data, len);
-    OutputData(audio_data);  // 使用基类的 OutputData 方法
-} 
+} // namespace xiaozhi

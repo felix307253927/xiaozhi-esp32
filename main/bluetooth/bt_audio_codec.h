@@ -1,58 +1,53 @@
-#ifndef _BT_AUDIO_CODEC_H_
-#define _BT_AUDIO_CODEC_H_
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-03-15 13:31:36
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-15 14:19:23
+ */
+#pragma once
 
-#include "audio_codecs/audio_codec.h"
-#include "bt_a2dp_sink.h"
-
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/queue.h>
-#include <freertos/ringbuf.h>
-
-#include <string>
+#include <cstdint>
+#include <vector>
+#include <queue>
 #include <mutex>
+#include "../audio_codecs/audio_codec.h"
+#include "esp_a2dp_api.h"
 
+namespace xiaozhi {
+
+// 蓝牙音频编解码器，继承自AudioCodec
 class BtAudioCodec : public AudioCodec {
 public:
-    BtAudioCodec(int output_sample_rate = 44100, int output_channels = 2);
-    virtual ~BtAudioCodec();
-    
-    // 重写AudioCodec的虚函数
-    virtual void SetOutputVolume(int volume) override;
-    virtual void EnableInput(bool enable) override;
-    virtual void EnableOutput(bool enable) override;
-    
-    // 获取蓝牙连接状态
-    bool IsConnected() const;
-    
-    // 获取蓝牙播放状态
-    bool IsPlaying() const;
-    
-    // 获取连接的设备名称
-    std::string GetConnectedDeviceName() const;
-    
-    // 获取连接的设备地址
-    std::string GetConnectedDeviceAddress() const;
-    
-    // 播放控制
-    bool Play();
-    bool Pause();
-    bool Stop();
-    bool Next();
-    bool Previous();
+    static BtAudioCodec& GetInstance();
+
+    // 处理接收到的A2DP数据
+    void ProcessData(const uint8_t* data, uint32_t len);
+
+    // 设置音量
+    void SetVolume(uint8_t volume);
+    uint8_t GetVolume() const;
 
 protected:
+    // AudioCodec接口实现
     virtual int Read(int16_t* dest, int samples) override;
     virtual int Write(const int16_t* data, int samples) override;
 
 private:
-    // 处理A2DP音频数据的回调
-    void OnA2dpAudioData(const uint8_t* data, uint32_t len);
-    
-    // 音频数据缓冲区
-    RingbufHandle_t audio_ring_buffer_;
-    std::mutex mutex_;
-    std::string device_name_;
+    BtAudioCodec();
+    ~BtAudioCodec() = default;
+
+    // 禁止拷贝
+    BtAudioCodec(const BtAudioCodec&) = delete;
+    BtAudioCodec& operator=(const BtAudioCodec&) = delete;
+
+    bool initialized_ = false;
+    uint8_t volume_ = 80;  // 默认音量
+
+    // 音频缓冲区
+    std::queue<int16_t> audio_buffer_;
+    std::mutex buffer_mutex_;
+    static constexpr size_t MAX_BUFFER_SIZE = 8192;  // 最大缓冲区大小
 };
 
-#endif // _BT_AUDIO_CODEC_H_ 
+} // namespace xiaozhi

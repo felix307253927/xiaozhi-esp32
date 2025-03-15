@@ -1,176 +1,102 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-03-15 13:32:15
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-15 14:24:39
+ */
 #include "bt_music_player.h"
-#include <esp_log.h>
+#include "esp_log.h"
 
-#define TAG "BtMusicPlayer"
+static const char* TAG = "BtMusicPlayer";
 
-BtMusicPlayer::BtMusicPlayer() : audio_codec_(nullptr) {
+namespace xiaozhi {
+
+BtMusicPlayer& BtMusicPlayer::GetInstance() {
+    static BtMusicPlayer instance;
+    return instance;
 }
 
-BtMusicPlayer::~BtMusicPlayer() {
-    Deinit();
-}
-
-bool BtMusicPlayer::Init(const std::string& device_name) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
+bool BtMusicPlayer::Initialize(const std::string& device_name) {
     if (initialized_) {
-        ESP_LOGW(TAG, "BtMusicPlayer already initialized");
         return true;
     }
-    
-    // 创建蓝牙音频编解码器
-    audio_codec_ = std::make_unique<BtAudioCodec>(44100, 2);
-    if (!audio_codec_) {
-        ESP_LOGE(TAG, "Failed to create BtAudioCodec");
+
+    // 初始化A2DP接收器
+    if (!a2dp_sink_.Init(device_name)) {
+        ESP_LOGE(TAG, "Failed to initialize A2DP sink");
         return false;
     }
-    
-    // 启动音频编解码器
-    audio_codec_->Start();
-    
-    // 启用输出
-    audio_codec_->EnableOutput(true);
-    
-    // 设置默认音量
-    audio_codec_->SetOutputVolume(70);
-    
-    ESP_LOGI(TAG, "BtMusicPlayer initialized, device name: %s", device_name.c_str());
+
+    // 音频编解码器是自我初始化的单例
+    audio_codec_.Start();
+
     initialized_ = true;
+    ESP_LOGI(TAG, "Bluetooth music player initialized");
     return true;
 }
 
-void BtMusicPlayer::Deinit() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
+void BtMusicPlayer::Deinitialize() {
     if (!initialized_) {
         return;
     }
-    
-    // 禁用输出
-    if (audio_codec_) {
-        audio_codec_->EnableOutput(false);
-    }
-    
-    // 销毁音频编解码器
-    audio_codec_.reset();
-    
+
+    // 只需停止A2DP，BtAudioCodec作为单例会自行管理
+    a2dp_sink_.Deinit();
     initialized_ = false;
-    ESP_LOGI(TAG, "BtMusicPlayer deinitialized");
+    ESP_LOGI(TAG, "Bluetooth music player deinitialized");
+}
+
+void BtMusicPlayer::Play() {
+    if (!initialized_) {
+        return;
+    }
+    a2dp_sink_.PlayControl(ESP_AVRC_PT_CMD_PLAY);
+}
+
+void BtMusicPlayer::Pause() {
+    if (!initialized_) {
+        return;
+    }
+    a2dp_sink_.PlayControl(ESP_AVRC_PT_CMD_PAUSE);
+}
+
+void BtMusicPlayer::Next() {
+    if (!initialized_) {
+        return;
+    }
+    a2dp_sink_.PlayControl(ESP_AVRC_PT_CMD_FORWARD);
+}
+
+void BtMusicPlayer::Previous() {
+    if (!initialized_) {
+        return;
+    }
+    a2dp_sink_.PlayControl(ESP_AVRC_PT_CMD_BACKWARD);
+}
+
+void BtMusicPlayer::SetVolume(uint8_t volume) {
+    if (!initialized_) {
+        return;
+    }
+    audio_codec_.SetVolume(volume);
+    a2dp_sink_.SetVolume(volume);
+}
+
+uint8_t BtMusicPlayer::GetVolume() const {
+    return audio_codec_.GetVolume();
 }
 
 bool BtMusicPlayer::IsConnected() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        return false;
-    }
-    
-    return audio_codec_->IsConnected();
+    return a2dp_sink_.IsConnected();
 }
 
 bool BtMusicPlayer::IsPlaying() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        return false;
-    }
-    
-    return audio_codec_->IsPlaying();
+    return a2dp_sink_.IsPlaying();
 }
 
 std::string BtMusicPlayer::GetConnectedDeviceName() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        return "";
-    }
-    
-    return audio_codec_->GetConnectedDeviceName();
+    return a2dp_sink_.GetConnectedDeviceName();
 }
 
-std::string BtMusicPlayer::GetConnectedDeviceAddress() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        return "";
-    }
-    
-    return audio_codec_->GetConnectedDeviceAddress();
-}
-
-bool BtMusicPlayer::Play() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return false;
-    }
-    
-    return audio_codec_->Play();
-}
-
-bool BtMusicPlayer::Pause() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return false;
-    }
-    
-    return audio_codec_->Pause();
-}
-
-bool BtMusicPlayer::Stop() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return false;
-    }
-    
-    return audio_codec_->Stop();
-}
-
-bool BtMusicPlayer::Next() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return false;
-    }
-    
-    return audio_codec_->Next();
-}
-
-bool BtMusicPlayer::Previous() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return false;
-    }
-    
-    return audio_codec_->Previous();
-}
-
-void BtMusicPlayer::SetVolume(int volume) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return;
-    }
-    
-    audio_codec_->SetOutputVolume(volume);
-}
-
-int BtMusicPlayer::GetVolume() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (!initialized_ || !audio_codec_) {
-        ESP_LOGW(TAG, "BtMusicPlayer not initialized");
-        return 0;
-    }
-    
-    return audio_codec_->output_volume();
-} 
+} // namespace xiaozhi
