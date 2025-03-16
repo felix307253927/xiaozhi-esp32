@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-12 22:27:26
+ * @LastEditTime       : 2025-03-16 23:29:41
  */
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
@@ -97,7 +97,8 @@ private:
             if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
                 ResetWifiConfiguration();
             }
-            app.ToggleChatState(); });
+            app.StartChatState();
+        });
 
         volume_up_button_.OnClick([this]()
                                   {
