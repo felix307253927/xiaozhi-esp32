@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 10:00:06
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-16 23:29:41
+ * @LastEditTime       : 2025-03-19 00:00:30
  */
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
@@ -21,6 +21,22 @@
 #include <esp_lcd_panel_vendor.h>
 #include <driver/spi_common.h>
 #include <esp_timer.h>
+#include <driver/touch_pad.h>
+
+// Touch pad related declarations
+extern "C"
+{
+    typedef struct
+    {
+        touch_pad_intr_mask_t intr_mask;
+        uint32_t pad_num;
+        uint32_t pad_status;
+        uint32_t pad_val;
+    } touch_event_t;
+
+    void init(void);
+    extern QueueHandle_t que_touch;
+}
 
 #define TAG "qiqitft"
 
@@ -34,6 +50,54 @@ private:
     Button volume_up_button_;
     Button volume_down_button_;
     LcdST7735Display *display_;
+
+    void TouchCallback(touch_event_t evt)
+    {
+        ESP_LOGI(TAG, "Touch event: pad=%lu, status=%lu", evt.pad_num, evt.pad_status);
+        if (evt.intr_mask & TOUCH_PAD_INTR_MASK_ACTIVE)
+        {
+            switch (evt.pad_num)
+            {
+            case TOUCH_PAD_NUM9:
+                ESP_LOGI(TAG, "TOUCH_PAD_NUM9 pressed");
+                break;
+            case TOUCH_PAD_NUM10:
+                ESP_LOGI(TAG, "TOUCH_PAD_NUM10 pressed");
+                break;
+            case TOUCH_PAD_NUM11:
+                ESP_LOGI(TAG, "TOUCH_PAD_NUM11 pressed");
+                break;
+            case TOUCH_PAD_NUM13: // BACK button
+                ESP_LOGI(TAG, "TOUCH_PAD_NUM13 pressed");
+                auto &app = Application::GetInstance();
+                if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected())
+                {
+                    ResetWifiConfiguration();
+                }
+                app.StartChatState();
+                break;
+            }
+        }
+    }
+
+    void InitializeTouch()
+    {
+        // 注册touch事件回调
+        extern void init(void);
+        init(); // 调用tp_interrupt.c中的初始化函数
+
+        // 创建touch事件处理任务
+        xTaskCreate([](void *arg)
+                    {
+            touch_event_t evt;
+            QueueHandle_t touch_queue = (QueueHandle_t)arg;
+            
+            while(1) {
+                if(xQueueReceive(touch_queue, &evt, portMAX_DELAY)) {
+                    static_cast<qiqitft*>(arg)->TouchCallback(evt);
+                }
+            } }, "touch_task", 2048, this, 5, nullptr);
+    }
 
     void InitializeSpi()
     {
@@ -97,8 +161,7 @@ private:
             if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
                 ResetWifiConfiguration();
             }
-            app.StartChatState();
-        });
+            app.StartChatState(); });
 
         volume_up_button_.OnClick([this]()
                                   {
@@ -148,6 +211,7 @@ public:
         InitializeLcdDisplay();
         InitializeButtons();
         InitializeIot();
+        InitializeTouch(); // 初始化触摸功能
     }
 
     virtual Led *GetLed() override
