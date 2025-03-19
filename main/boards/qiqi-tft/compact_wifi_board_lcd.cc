@@ -39,7 +39,7 @@ private:
     Button volume_down_button_;
     LcdST7735Display *display_;
 
-    void TouchCallback(TouchPad::TouchEvent evt)
+    void TouchCallback(TouchEvent evt)
     {
         ESP_LOGI(TAG, "Touch event: pad=%lu, status=%lu", evt.pad_num, evt.pad_status);
         if (evt.intr_mask & TOUCH_PAD_INTR_MASK_ACTIVE)
@@ -71,11 +71,11 @@ private:
     void InitializeTouch()
     {
         // 初始化触摸控制器
-        auto &touchController = TouchPad::TouchController::GetInstance();
+        auto &touchController = TouchController::GetInstance();
         touchController.Init();
 
         // 注册触摸事件回调
-        touchController.RegisterCallback([this](const TouchPad::TouchEvent &evt)
+        touchController.RegisterCallback([this](const TouchEvent &evt)
                                          { this->TouchCallback(evt); });
     }
 
