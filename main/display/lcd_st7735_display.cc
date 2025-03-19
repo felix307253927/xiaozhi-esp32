@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-08 10:40:15
+ * @LastEditTime       : 2025-03-19 21:53:12
  */
 #include "lcd_st7735_display.h"
 
@@ -14,7 +14,6 @@
 #include <vector>
 #include <esp_lvgl_port.h>
 #include <esp_timer.h>
-#include <esp_sntp.h>
 #include <esp_netif.h>
 #include <wifi_station.h>
 
@@ -91,9 +90,6 @@ LcdST7735Display::LcdST7735Display(esp_lcd_panel_io_handle_t panel_io, esp_lcd_p
         lv_display_set_offset(display_, offset_x, offset_y);
     }
 
-    // 在设置UI之前初始化时间同步
-    InitTimeSync();
-
     SetupUI();
 }
 
@@ -125,101 +121,12 @@ LcdST7735Display::~LcdST7735Display() {
         esp_lcd_panel_io_del(panel_io_);
     }
 
-    if (time_timer_ != nullptr) {
-        esp_timer_stop(time_timer_);
-        esp_timer_delete(time_timer_);
-    }
-
-    if (sync_timer_ != nullptr) {
-        esp_timer_stop(sync_timer_);
-        esp_timer_delete(sync_timer_);
-    }
-
     if (status_timer_ != nullptr) {
         esp_timer_stop(status_timer_);
         esp_timer_delete(status_timer_);
     }
 
     instance_ = nullptr;
-}
-
-void LcdST7735Display::InitTimeSync() {
-    // 创建时间更新定时器
-    const esp_timer_create_args_t time_timer_args = {
-        .callback = [](void* arg) {
-            LcdST7735Display* display = static_cast<LcdST7735Display*>(arg);
-            display->UpdateTime();
-        },
-        .arg = this,
-        .dispatch_method = ESP_TIMER_TASK,
-        .name = "time_timer",
-        .skip_unhandled_events = true,
-    };
-    ESP_ERROR_CHECK(esp_timer_create(&time_timer_args, &time_timer_));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(time_timer_, 1000000)); // 每秒更新一次
-    
-    // 创建重试定时器
-    const esp_timer_create_args_t sync_timer_args = {
-        .callback = [](void* arg) {
-            LcdST7735Display* display = static_cast<LcdST7735Display*>(arg);
-            display->RetryTimeSync();
-        },
-        .arg = this,
-        .dispatch_method = ESP_TIMER_TASK,
-        .name = "sync_timer",
-        .skip_unhandled_events = true,
-    };
-    ESP_ERROR_CHECK(esp_timer_create(&sync_timer_args, &sync_timer_));
-    
-    // 延迟启动重试定时器，给系统一些时间初始化网络
-    ESP_ERROR_CHECK(esp_timer_start_once(sync_timer_, 3000000)); // 3秒后开始第一次尝试
-}
-
-void LcdST7735Display::RetryTimeSync() {
-    if (time_synced_) {
-        return;
-    }
-    
-    // 检查WiFi连接状态
-    auto& wifi = WifiStation::GetInstance();
-    if (wifi.IsConnected()) {
-        ESP_LOGI(TAG, "WiFi connected, starting SNTP");
-        
-        // 配置 SNTP
-        sntp_setoperatingmode(SNTP_OPMODE_POLL);
-        sntp_setservername(0, "pool.ntp.org");
-        sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
-        sntp_set_time_sync_notification_cb(OnTimeSync);
-        
-        ESP_LOGI(TAG, "Initializing SNTP");
-        sntp_init();
-        
-        // 启动定期检查
-        ESP_ERROR_CHECK(esp_timer_start_periodic(sync_timer_, 5000000));
-    } else {
-        ESP_LOGW(TAG, "WiFi not connected, will retry time sync later");
-        // 3秒后重试
-        ESP_ERROR_CHECK(esp_timer_start_once(sync_timer_, 3000000));
-    }
-}
-
-void LcdST7735Display::OnTimeSync(struct timeval *tv) {
-    ESP_LOGI(TAG, "Time synchronized from NTP server!");
-    auto display = LcdST7735Display::GetInstance();
-    if (display) {
-        display->time_synced_ = true;
-        
-        // 设置时区为中国时区 (UTC+8)
-        if (setenv("TZ", "CST-8", 1) != 0) {
-            ESP_LOGE(TAG, "Failed to set timezone");
-        } else {
-            tzset();
-            ESP_LOGI(TAG, "Timezone set to CST-8");
-            
-            // 时间同步成功后立即显示时间
-            display->OnStatusTimer();
-        }
-    }
 }
 
 void LcdST7735Display::UpdateTime() {
@@ -229,20 +136,27 @@ void LcdST7735Display::UpdateTime() {
     localtime_r(&now, &timeinfo);
     
     char time_str[9];
-    if (!time_synced_) {
-        strcpy(time_str, "--:--:--");
-    } else {
-        snprintf(time_str, sizeof(time_str), "%02d:%02d:%02d",
-                timeinfo.tm_hour,
-                timeinfo.tm_min,
-                timeinfo.tm_sec);
-    }
+    snprintf(time_str, sizeof(time_str), "%02d:%02d:%02d",
+            timeinfo.tm_hour,
+            timeinfo.tm_min,
+            timeinfo.tm_sec);
              
     DisplayLockGuard lock(this);
-    ESP_LOGI(TAG, "Updating time: %s", time_str);
+    if (show_home_screen_count == 10)
+    {
+        ESP_LOGI(TAG, "Updating time: %s", time_str);
+    }
+    show_home_screen_count++;
     if (time_label_ != nullptr) {
         lv_label_set_text(time_label_, time_str);
     }
+
+     // 每15秒切换analog
+     if (show_home_screen_count > 15)
+     {
+         show_home_screen_count = 0;
+        //  ShowClock();
+     }
 }
 
 bool LcdST7735Display::Lock(int timeout_ms) {

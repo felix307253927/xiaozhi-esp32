@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:27:24
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-12 22:19:05
+ * @LastEditTime       : 2025-03-19 21:49:59
  */
 #include "guider_240_240.h"
 #include "gui_guider.h"
@@ -14,7 +14,6 @@
 #include <vector>
 #include <esp_lvgl_port.h>
 #include <esp_timer.h>
-#include <esp_sntp.h>
 #include <esp_netif.h>
 #include <wifi_station.h>
 #include <lvgl.h>

@@ -21,7 +21,7 @@
 // 触摸事件结构体
 struct TouchEvent
 {
-    touch_pad_intr_mask_t intr_mask;
+    uint32_t intr_mask;
     uint32_t pad_num;
     uint32_t pad_status;
     uint32_t pad_val;
@@ -71,7 +71,7 @@ private:
     static bool initialized_;
 
     // 常量和配置
-    static const int TOUCH_BUTTON_NUM = 4;
+    static const int TOUCH_BUTTON_NUM = 1;
     static const int TOUCH_BUTTON_WATERPROOF_ENABLE = 1;
     static const int TOUCH_BUTTON_DENOISE_ENABLE = 1;
     static const int TOUCH_CHANGE_CONFIG = 0;

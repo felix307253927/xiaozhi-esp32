@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:28:09
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-08 10:37:36
+ * @LastEditTime       : 2025-03-19 21:50:53
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -19,7 +19,6 @@
 #include <esp_lcd_panel_ops.h>
 #include <esp_timer.h>
 #include <font_emoji.h>
-#include <esp_sntp.h>
 
 #include <atomic>
 

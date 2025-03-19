@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-03-18 21:59:04
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-19 12:44:52
+ * @LastEditTime       : 2025-03-19 21:28:05
  */
 /*
  * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
@@ -29,17 +29,17 @@ bool TouchController::initialized_ = false;
 
 // 初始化常量数组
 const touch_pad_t TouchController::button_[TouchController::TOUCH_BUTTON_NUM] = {
-    TOUCH_PAD_NUM9,
-    TOUCH_PAD_NUM10,
-    TOUCH_PAD_NUM11,
-    TOUCH_PAD_NUM13,
+    // TOUCH_PAD_NUM9,
+    // TOUCH_PAD_NUM10,
+    // TOUCH_PAD_NUM11,
+    TOUCH_PAD_NUM14,
     // If this pad be touched, other pads no response.
 };
 
 const float TouchController::button_threshold_[TouchController::TOUCH_BUTTON_NUM] = {
-    0.2, // 20%.
-    0.2, // 20%.
-    0.2, // 20%.
+    // 0.2, // 20%.
+    // 0.2, // 20%.
+    // 0.2, // 20%.
     0.1, // 10%.
 };
 
@@ -116,8 +116,12 @@ void TouchController::FilterSet(touch_filter_mode_t mode)
 
 void TouchController::TouchEventTask(void *pvParameter)
 {
-  TouchEvent evt = {0};
-  static uint8_t guard_mode_flag = 0;
+  TouchEvent evt = {
+      .intr_mask = TOUCH_PAD_INTR_MASK_INACTIVE,
+      .pad_num = 0,
+      .pad_status = 0,
+      .pad_val = 0,
+  };
 
   /* Wait touch sensor init done */
   vTaskDelay(50 / portTICK_PERIOD_MS);
@@ -219,14 +223,16 @@ void TouchController::Init()
   touch_pad_waterproof_enable();
   ESP_LOGI(TAG, "touch pad waterproof init");
 #endif
-
   /* Filter setting */
   FilterSet(TOUCH_PAD_FILTER_IIR_16);
   touch_pad_timeout_set(true, TOUCH_PAD_THRESHOLD_MAX);
   /* Register touch interrupt ISR, enable intr type. */
-  touch_pad_isr_register(TouchInterruptCallback, nullptr, TOUCH_PAD_INTR_MASK_ALL);
+
+  touch_pad_isr_register(TouchInterruptCallback, nullptr, (touch_pad_intr_mask_t)TOUCH_PAD_INTR_MASK_ALL);
   /* If you have other touch algorithm, you can get the measured value after the `TOUCH_PAD_INTR_MASK_SCAN_DONE` interrupt is generated. */
-  touch_pad_intr_enable(TOUCH_PAD_INTR_MASK_ACTIVE | TOUCH_PAD_INTR_MASK_INACTIVE | TOUCH_PAD_INTR_MASK_TIMEOUT);
+  touch_pad_intr_enable((touch_pad_intr_mask_t)(TOUCH_PAD_INTR_MASK_ACTIVE | 
+    TOUCH_PAD_INTR_MASK_INACTIVE | 
+    TOUCH_PAD_INTR_MASK_TIMEOUT));
 
   /* Enable touch sensor clock. Work mode is "timer trigger". */
   touch_pad_set_fsm_mode(TOUCH_FSM_MODE_TIMER);

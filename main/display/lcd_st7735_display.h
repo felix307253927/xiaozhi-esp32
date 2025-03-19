@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-16 09:28:09
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-12 22:28:55
+ * @LastEditTime       : 2025-03-19 21:52:53
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -18,7 +18,6 @@
 #include <esp_lcd_panel_ops.h>
 #include <esp_timer.h>
 #include <font_emoji.h>
-#include <esp_sntp.h>
 
 #include <atomic>
 
@@ -39,20 +38,15 @@ protected:
     lv_obj_t* side_bar_ = nullptr;
     lv_obj_t* emotion_container_ = nullptr;
     lv_obj_t* chat_container_ = nullptr;
+    int show_home_screen_count = 0;
 
     DisplayFonts fonts_;
 
     lv_obj_t* time_label_ = nullptr;
-    esp_timer_handle_t time_timer_ = nullptr;
-    esp_timer_handle_t sync_timer_ = nullptr;
     bool time_synced_ = false;
 
     esp_timer_handle_t status_timer_ = nullptr;  // 添加状态显示定时器
     void OnStatusTimer();  // 添加状态定时器回调
-
-    void InitTimeSync();
-    static void OnTimeSync(struct timeval *tv);
-    void RetryTimeSync();
 
     virtual void SetupUI();
     virtual void UpdateTime();
