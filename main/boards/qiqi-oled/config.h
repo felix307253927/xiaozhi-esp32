@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-20 14:14:31
+ * @LastEditTime       : 2025-03-20 14:28:25
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
@@ -52,7 +52,7 @@
 #elif CONFIG_OLED_SSD1306_128X64
 #define DISPLAY_HEIGHT  64
 #else
-#error "未选择 OLED 屏幕类型"
+#define DISPLAY_HEIGHT  64
 #endif
 
 #define DISPLAY_MIRROR_X true
