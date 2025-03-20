@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-02-15 17:34:15
+ * @LastEditTime       : 2025-03-20 14:14:31
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
@@ -12,6 +12,8 @@
 
 #define AUDIO_INPUT_SAMPLE_RATE  16000
 #define AUDIO_OUTPUT_SAMPLE_RATE 24000
+
+// ws:   wss://aide.zuizhenshi.cn
 
 // 如果使用 Duplex I2S 模式，请注释下面一行
 #define AUDIO_I2S_METHOD_SIMPLEX
