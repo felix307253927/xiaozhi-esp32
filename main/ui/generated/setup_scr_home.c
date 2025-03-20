@@ -20,25 +20,28 @@ void setup_scr_home(lv_ui *ui)
 {
     //Write codes home
     ui->home = lv_obj_create(NULL);
-    lv_obj_set_size(ui->home, 240, 240);
+    lv_obj_set_size(ui->home, 360, 360);
     lv_obj_set_scrollbar_mode(ui->home, LV_SCROLLBAR_MODE_OFF);
 
     //Write style for home, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_bg_opa(ui->home, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui->home, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_bg_grad_dir(ui->home, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui->home, &_home_RGB565A8_360x360, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_opa(ui->home, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_recolor_opa(ui->home, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes home_chat_message_label_
     ui->home_chat_message_label_ = lv_label_create(ui->home);
-    lv_obj_set_pos(ui->home_chat_message_label_, 9, 94);
-    lv_obj_set_size(ui->home_chat_message_label_, 223, 97);
+    lv_obj_set_pos(ui->home_chat_message_label_, 13, 184);
+    lv_obj_set_size(ui->home_chat_message_label_, 334, 102);
     lv_label_set_text(ui->home_chat_message_label_, "");
     lv_label_set_long_mode(ui->home_chat_message_label_, LV_LABEL_LONG_WRAP);
 
     //Write style for home_chat_message_label_, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->home_chat_message_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->home_chat_message_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui->home_chat_message_label_, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->home_chat_message_label_, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui->home_chat_message_label_, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui->home_chat_message_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_line_space(ui->home_chat_message_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -52,8 +55,8 @@ void setup_scr_home(lv_ui *ui)
 
     //Write codes home_emotion_label_
     ui->home_emotion_label_ = lv_label_create(ui->home);
-    lv_obj_set_pos(ui->home_emotion_label_, 88, 25);
-    lv_obj_set_size(ui->home_emotion_label_, 64, 64);
+    lv_obj_set_pos(ui->home_emotion_label_, 132, 37);
+    lv_obj_set_size(ui->home_emotion_label_, 96, 96);
     lv_label_set_text(ui->home_emotion_label_, "");
     lv_label_set_long_mode(ui->home_emotion_label_, LV_LABEL_LONG_WRAP);
 
@@ -61,7 +64,7 @@ void setup_scr_home(lv_ui *ui)
     lv_obj_set_style_border_width(ui->home_emotion_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->home_emotion_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui->home_emotion_label_, lv_color_hex(0xfff000), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui->home_emotion_label_, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->home_emotion_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui->home_emotion_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_line_space(ui->home_emotion_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui->home_emotion_label_, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -74,15 +77,15 @@ void setup_scr_home(lv_ui *ui)
 
     //Write codes home_notification_label_
     ui->home_notification_label_ = lv_label_create(ui->home);
-    lv_obj_set_pos(ui->home_notification_label_, 46, 208);
-    lv_obj_set_size(ui->home_notification_label_, 148, 24);
+    lv_obj_set_pos(ui->home_notification_label_, 69, 312);
+    lv_obj_set_size(ui->home_notification_label_, 222, 36);
     lv_label_set_text(ui->home_notification_label_, "");
     lv_label_set_long_mode(ui->home_notification_label_, LV_LABEL_LONG_SCROLL);
 
     //Write style for home_notification_label_, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->home_notification_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->home_notification_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui->home_notification_label_, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->home_notification_label_, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui->home_notification_label_, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui->home_notification_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_line_space(ui->home_notification_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -96,8 +99,8 @@ void setup_scr_home(lv_ui *ui)
 
     //Write codes home_network_label_
     ui->home_network_label_ = lv_label_create(ui->home);
-    lv_obj_set_pos(ui->home_network_label_, 110, 1);
-    lv_obj_set_size(ui->home_network_label_, 20, 20);
+    lv_obj_set_pos(ui->home_network_label_, 165, 1);
+    lv_obj_set_size(ui->home_network_label_, 30, 30);
     lv_label_set_text(ui->home_network_label_, "");
     lv_label_set_long_mode(ui->home_network_label_, LV_LABEL_LONG_WRAP);
 
@@ -118,15 +121,15 @@ void setup_scr_home(lv_ui *ui)
 
     //Write codes home_status_label_
     ui->home_status_label_ = lv_label_create(ui->home);
-    lv_obj_set_pos(ui->home_status_label_, 46, 212);
-    lv_obj_set_size(ui->home_status_label_, 148, 24);
+    lv_obj_set_pos(ui->home_status_label_, 69, 318);
+    lv_obj_set_size(ui->home_status_label_, 222, 36);
     lv_label_set_text(ui->home_status_label_, "");
     lv_label_set_long_mode(ui->home_status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
     //Write style for home_status_label_, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->home_status_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->home_status_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui->home_status_label_, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->home_status_label_, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui->home_status_label_, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui->home_status_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_line_space(ui->home_status_label_, 0, LV_PART_MAIN|LV_STATE_DEFAULT);

@@ -86,8 +86,8 @@ void setup_ui(lv_ui *ui)
     setup_bottom_layer();
     init_scr_del_flag(ui);
     init_keyboard(ui);
-    setup_scr_home(ui);
-    lv_screen_load(ui->home);
+    setup_scr_home_analog(ui);
+    lv_screen_load(ui->home_analog);
 }
 
 void video_play(lv_ui *ui)

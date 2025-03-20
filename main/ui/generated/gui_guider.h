@@ -1,4 +1,11 @@
 /*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-03-20 21:57:44
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-20 22:15:25
+ */
+/*
 * Copyright 2025 NXP
 * NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly in
 * accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
@@ -62,13 +69,15 @@ extern lv_ui guider_ui;
 void setup_scr_home_analog(lv_ui *ui);
 void setup_scr_home(lv_ui *ui);
 
-LV_IMAGE_DECLARE(_nezha_RGB565A8_240x240);
+LV_IMAGE_DECLARE(_lock_RGB565A8_360x360);
 LV_IMAGE_DECLARE(_img_clockwise_hour_RGB565A8_16x60);
 LV_IMAGE_DECLARE(_img_clockwise_min_RGB565A8_16x106);
-LV_IMAGE_DECLARE(_img_clockwise_sec_RGB565A8_22x136);
+LV_IMAGE_DECLARE(_img_clockwise_sec_RGB565A8_22x150);
 
-LV_FONT_DECLARE(lv_font_montserratMedium_10)
-LV_FONT_DECLARE(lv_font_montserratMedium_16)
+LV_IMAGE_DECLARE(_home_RGB565A8_360x360);
+
+// LV_FONT_DECLARE(lv_font_montserratMedium_15)
+// LV_FONT_DECLARE(lv_font_montserratMedium_24)
 
 
 #ifdef __cplusplus

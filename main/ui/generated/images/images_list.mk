@@ -1,1 +1,1 @@
-GEN_CSRCS += _nezha_RGB565A8_240x240.c _img_clockwise_hour_RGB565A8_16x60.c _img_clockwise_min_RGB565A8_16x106.c _img_clockwise_sec_RGB565A8_22x136.c
+GEN_CSRCS += _lock_RGB565A8_360x360.c _img_clockwise_hour_RGB565A8_16x60.c _img_clockwise_min_RGB565A8_16x106.c _img_clockwise_sec_RGB565A8_22x150.c _home_RGB565A8_360x360.c
