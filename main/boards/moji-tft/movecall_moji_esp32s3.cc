@@ -120,7 +120,8 @@ private:
             if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
                 ResetWifiConfiguration();
             }
-            app.ToggleChatState();
+            ESP_LOGI(TAG, "boot_button_ pressed");
+            app.StartChatState();
         });
     }
 
