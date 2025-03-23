@@ -52,6 +52,7 @@ public:
     virtual void SetEmotion(const char* emotion) override;
     virtual void SetIcon(const char* icon) override;
     void SetClockBg(const void *value);
+    void SetChatBg(const void *value);
 #if CONFIG_USE_WECHAT_MESSAGE_STYLE
     virtual void SetChatMessage(const char* role, const char* content) override; 
 #endif  

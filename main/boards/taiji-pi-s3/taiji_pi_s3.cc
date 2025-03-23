@@ -17,6 +17,7 @@
 
 #define TAG "TaijiPiS3Board"
 
+LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
 LV_IMAGE_DECLARE(clock_RGB565A8_360x360);
 
 LV_FONT_DECLARE(lv_font_AlexBrush_Regular_96);
@@ -220,6 +221,7 @@ public:
         GetBacklight()->RestoreBrightness();
         if (display_ != nullptr) {
             display_->SetClockBg(&clock_RGB565A8_360x360);
+            display_->SetChatBg(&chat_RGB565A8_360x360);
         }
     }
 

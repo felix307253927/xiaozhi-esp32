@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-03-23 09:22:29
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-23 12:39:24
+ * @LastEditTime       : 2025-03-23 12:55:46
  */
 /*
  * @Author             : Felix
@@ -714,18 +714,60 @@ void GuiDisplay::SetClockUI(lv_obj_t *parent)
     lv_obj_set_flex_flow(clock_screen_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(clock_screen_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_bg_color(clock_screen_, current_theme.background, 0); // 设置背景颜色
+    lv_obj_set_style_bg_opa(clock_screen_, LV_OPA_TRANSP, 0);              // 设置背景透明
 
-    time_txt_ = lv_obj_create(clock_screen_);                                // 创建一个空对象，用于显示时钟
-    lv_obj_set_size(time_txt_, LV_HOR_RES - 10, 100);                             // 设置时钟大小
-    lv_obj_set_style_text_font(time_txt_, fonts_.text_font, 0);
-    // lv_obj_set_style_text_font(time_txt_, &lv_font_AlexBrush_Regular_96, 0); // 设置字体
-    lv_label_set_text(time_txt_, "00:00");                                  // 设置初始时间
-    lv_obj_set_style_text_color(time_txt_, lv_color_white(), 0);             // 设置颜色
-    lv_obj_set_style_text_align(time_txt_, LV_TEXT_ALIGN_CENTER, 0);         // 设置居中对齐
-    lv_obj_set_style_bg_opa(time_txt_, LV_OPA_TRANSP, 0);                    // 设置背景透明度
-    // lv_obj_set_style_border_width(time_txt_, 0, 0);                          // 设置边框宽度
+    time_txt_ = lv_label_create(clock_screen_);  // 创建一个空对象，用于显示时钟
+    lv_obj_set_size(time_txt_, LV_HOR_RES, 100); // 设置时钟大小
+    // lv_obj_set_style_text_font(time_txt_, fonts_.text_font, 0);
+    lv_obj_set_style_text_font(time_txt_, &lv_font_AlexBrush_Regular_96, 0); // 设置字体
+    lv_obj_set_style_text_color(time_txt_, current_theme.text, 0);
+    lv_label_set_text(time_txt_, "00:00");                           // 设置初始时间
+    lv_obj_set_style_text_color(time_txt_, lv_color_white(), 0);     // 设置颜色
+    lv_obj_set_style_text_align(time_txt_, LV_TEXT_ALIGN_CENTER, 0); // 设置居中对齐
+    lv_obj_set_style_bg_opa(time_txt_, LV_OPA_TRANSP, 0);            // 设置背景完全透明
+    lv_obj_set_style_border_width(time_txt_, 0, 0);                  // 设置边框宽度为0
 
     lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
+
+    // 将container_内部的元素背景全部设置为透明
+    // 递归地将container_及其所有子元素的背景设置为透明
+    if (container_ != nullptr)
+    {
+        // 设置container_本身透明
+        lv_obj_set_style_bg_opa(container_, LV_OPA_TRANSP, 0);
+
+        // 设置status_bar_及其子元素透明
+        if (status_bar_ != nullptr)
+        {
+            lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
+            uint32_t child_cnt = lv_obj_get_child_cnt(status_bar_);
+            for (uint32_t i = 0; i < child_cnt; i++)
+            {
+                lv_obj_t *child = lv_obj_get_child(status_bar_, i);
+                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
+            }
+        }
+
+        // 设置content_及其子元素透明
+        if (content_ != nullptr)
+        {
+            lv_obj_set_style_bg_opa(content_, LV_OPA_TRANSP, 0);
+            uint32_t child_cnt = lv_obj_get_child_cnt(content_);
+            for (uint32_t i = 0; i < child_cnt; i++)
+            {
+                lv_obj_t *child = lv_obj_get_child(content_, i);
+                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
+
+                // 处理content_子元素的子元素（例如消息气泡及其内容）
+                uint32_t grandchild_cnt = lv_obj_get_child_cnt(child);
+                for (uint32_t j = 0; j < grandchild_cnt; j++)
+                {
+                    lv_obj_t *grandchild = lv_obj_get_child(child, j);
+                    lv_obj_set_style_bg_opa(grandchild, LV_OPA_TRANSP, 0);
+                }
+            }
+        }
+    }
 }
 
 void GuiDisplay::SetEmotion(const char *emotion)
@@ -1042,14 +1084,21 @@ void GuiDisplay::SetTheme(const std::string &theme_name)
 
 void GuiDisplay::SetClockBg(const void *value)
 {
-    DisplayLockGuard lock(this);
-    if (clock_screen_ == nullptr)
+    if (clock_screen_ != nullptr)
     {
-        return;
+        DisplayLockGuard lock(this);
+        // 设置时钟背景
+        lv_obj_set_style_bg_img_src(clock_screen_, value, 0);
     }
-
-    // 设置时钟背景
-    lv_obj_set_style_bg_img_src(clock_screen_, value, 0);
+}
+void GuiDisplay::SetChatBg(const void *value)
+{
+    if (container_ != nullptr)
+    {
+        DisplayLockGuard lock(this);
+        // 设置时钟背景
+        lv_obj_set_style_bg_img_src(container_, value, 0);
+    }
 }
 
 void GuiDisplay::SetClockTime()
@@ -1081,34 +1130,22 @@ void GuiDisplay::SetClockTime()
     {
         return;
     }
-    DisplayLockGuard lock(this);
-    lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
-    time_t now = time(NULL);
-    tm *time = localtime(&now);
+    // 15秒更新一次时钟
+    if (clock_time_count % 15 == 0)
+    {
+        DisplayLockGuard lock(this);
+        lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
+        time_t now = time(NULL);
+        tm *time = localtime(&now);
 
-    hour_ = time->tm_hour % 12; // 转换为12小时制
-    min_ = time->tm_min % 60;
-    sec_ = time->tm_sec % 60;
+        hour_ = time->tm_hour % 12; // 转换为12小时制
+        min_ = time->tm_min % 60;
+        sec_ = time->tm_sec % 60;
 
-    char time_str[64];
-    strftime(time_str, sizeof(time_str), "%H:%M", time);
-    ESP_LOGI(TAG, "Time: %s", time_str);
-    lv_label_set_text(time_txt_, time_str);
-
-    // // 更新指针角度
-    // lv_obj_set_style_transform_angle(hour_needle_, hour_angle, 0);
-    // lv_obj_set_style_transform_pivot_x(hour_needle_, hour_len_ / 2, 0); // 设置旋转中心
-    // lv_obj_set_style_transform_pivot_y(hour_needle_, 0, 0);
-
-    // lv_obj_set_style_transform_angle(min_needle_, min_angle, 0);
-    // lv_obj_set_style_transform_pivot_x(min_needle_, min_len_ / 2, 0);
-    // lv_obj_set_style_transform_pivot_y(min_needle_, 0, 0);
-
-    // lv_obj_set_style_transform_angle(sec_needle_, sec_angle, 0);
-    // lv_obj_set_style_transform_pivot_x(sec_needle_, sec_len_ / 2, 0);
-    // lv_obj_set_style_transform_pivot_y(sec_needle_, 0, 0);
-
-    // // 触发重绘
-    // lv_obj_invalidate(clock_screen_);
+        char time_str[64];
+        strftime(time_str, sizeof(time_str), "%H:%M", time);
+        ESP_LOGI(TAG, "Time: %s", time_str);
+        lv_label_set_text(time_txt_, time_str);
+    }
 }
