@@ -5,6 +5,7 @@
 #include <esp_log.h>
 #include <esp_err.h>
 #include <esp_lvgl_port.h>
+#include <esp_task_wdt.h>
 #include "assets/lang_config.h"
 #include <cstring>
 #include "settings.h"
@@ -102,7 +103,7 @@ SpiLcdDisplay::SpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_h
 
     ESP_LOGI(TAG, "Initialize LVGL port");
     lvgl_port_cfg_t port_cfg = ESP_LVGL_PORT_INIT_CONFIG();
-    port_cfg.task_priority = 1;
+    port_cfg.task_priority = 5;  // 提高LVGL任务优先级
     lvgl_port_init(&port_cfg);
 
     ESP_LOGI(TAG, "Adding LCD screen");
@@ -1278,62 +1279,51 @@ void LcdDisplay::SetClockTime()
 
 bool LcdDisplay::SetEmoImg(const char *value)
 {
+    DisplayLockGuard lock(this); // 添加锁保护
     bool is_emo = false;
-    if (emo_img_ != nullptr)
-    {
-        const char *angry = "angry";
-        const char *crying = "crying";
-        const char *listen = "listen";
-        const char *confused = "confused";
-        const char *speak = "speak";
-        if (value == angry)
-        {
-            is_emo = true;
-            if (lv_img_get_src(emo_img_) != &_angry_0_RGB565A8_64x64)
-            {
-                lv_img_set_src(emo_img_, &_angry_0_RGB565A8_64x64);
-            }
-            ESP_LOGI(TAG, "Set angry emotion");
+    if (emo_img_ == nullptr) {
+        return false;
+    }
+
+    // 图片源映射
+    struct EmoImgMap {
+        const char* name;
+        const void* src;
+        const char* log_msg;
+    };
+
+    static const EmoImgMap emo_map[] = {
+        {"angry", &_angry_0_RGB565A8_64x64, "Set angry emotion"},
+        {"crying", &_crying_0_RGB565A8_64x64, "Set crying emotion"},
+        {"listen", &_speak_0_RGB565A8_64x64, "Set speak emotion"}, // speak 更像说
+        {"confused", &_confused_0_RGB565A8_64x64, "Set confused emotion"},
+        {"speak", &_listen_0_RGB565A8_64x64, "Set listen emotion"}, // listen 更像听
+    };
+
+    const void* new_src = nullptr;
+    const char* log_msg = nullptr;
+
+    // 查找匹配的表情
+    for (const auto& emo : emo_map) {
+        if (value == emo.name) {
+            new_src = emo.src;
+            log_msg = emo.log_msg;
+            break;
         }
-        else if (value == crying)
-        {
-            is_emo = true;
-            if (lv_img_get_src(emo_img_) != &_crying_0_RGB565A8_64x64)
-            {
-                lv_img_set_src(emo_img_, &_crying_0_RGB565A8_64x64);
-            }
-            ESP_LOGI(TAG, "Set crying emotion");
+    }
+
+    // 如果找到匹配的表情
+    if (new_src) {
+        is_emo = true;
+        if (lv_img_get_src(emo_img_) != new_src) {
+            lv_img_set_src(emo_img_, new_src);
+            ESP_LOGI(TAG, "%s", log_msg);
+            // 增加延迟时间，给LVGL更多时间处理
+            vTaskDelay(pdMS_TO_TICKS(50));
+            // 重置看门狗计时器
+            esp_task_wdt_reset();
         }
-        else if (value == listen)
-        {
-            // speak 更像说
-            is_emo = true;
-            if (lv_img_get_src(emo_img_) != &_speak_0_RGB565A8_64x64)
-            {
-                lv_img_set_src(emo_img_, &_speak_0_RGB565A8_64x64);
-            }
-            ESP_LOGI(TAG, "Set speak emotion");
-        }
-        else if (value == confused)
-        {
-            is_emo = true;
-            if (lv_img_get_src(emo_img_) != &_confused_0_RGB565A8_64x64)
-            {
-                lv_img_set_src(emo_img_, &_confused_0_RGB565A8_64x64);
-            }
-            ESP_LOGI(TAG, "Set confused emotion");
-        }
-        else // if (value == speak)
-        {
-            // listen 更像听
-            is_emo = true;
-            if (lv_img_get_src(emo_img_) != &_listen_0_RGB565A8_64x64)
-            {
-                lv_img_set_src(emo_img_, &_listen_0_RGB565A8_64x64);
-            }
-            ESP_LOGI(TAG, "Set listen emotion");
-        }
-        vTaskDelay(20);
+    }
 
         // if (is_emo)
         // {
@@ -1348,6 +1338,5 @@ bool LcdDisplay::SetEmoImg(const char *value)
         //         vTaskDelay(10);
         //     }
         // }
-    }
     return is_emo;
 }
