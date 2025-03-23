@@ -84,7 +84,8 @@ void Application::CheckNewVersion() {
         }
         retry_count = 0;
 
-        if (ota_.HasNewVersion()) {
+        // 禁止自动更新
+        if (false && ota_.HasNewVersion()) {
             Alert(Lang::Strings::OTA_UPGRADE, Lang::Strings::UPGRADING, "happy", Lang::Sounds::P3_UPGRADE);
             // Wait for the chat state to be idle
             do {
