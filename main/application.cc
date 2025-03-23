@@ -538,7 +538,9 @@ void Application::Start() {
 
 void Application::OnClockTimer() {
     clock_ticks_++;
-
+    if (ota_.HasServerTime()) {
+        Board::GetInstance().GetDisplay()->SetClockTime();
+    }
     // Print the debug info every 10 seconds
     if (clock_ticks_ % 10 == 0) {
         // SystemInfo::PrintRealTimeStats(pdMS_TO_TICKS(1000));

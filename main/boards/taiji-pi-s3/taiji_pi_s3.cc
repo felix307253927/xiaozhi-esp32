@@ -1,6 +1,6 @@
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
-#include "display/lcd_display.h"
+#include "display/gui_display.h"
 #include "application.h"
 #include "i2c_device.h"
 #include "config.h"
@@ -17,7 +17,9 @@
 
 #define TAG "TaijiPiS3Board"
 
+LV_IMAGE_DECLARE(clock_RGB565A8_360x360);
 
+LV_FONT_DECLARE(lv_font_AlexBrush_Regular_96);
 LV_FONT_DECLARE(font_puhui_20_4);
 LV_FONT_DECLARE(font_awesome_20_4);
 
@@ -58,7 +60,7 @@ class TaijiPiS3Board : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;
     Cst816s* cst816s_;
-    LcdDisplay* display_;
+    GuiDisplay* display_;
     esp_timer_handle_t touchpad_timer_;
 
     void InitializeI2c() {
@@ -185,7 +187,7 @@ private:
         esp_lcd_panel_swap_xy(panel, DISPLAY_SWAP_XY);
         esp_lcd_panel_mirror(panel, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
 
-        display_ = new SpiLcdDisplay(panel_io, panel,
+        display_ = new SpiGuiDisplay(panel_io, panel,
                                     DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY,
                                     {
                                         .text_font = &font_puhui_20_4,
@@ -216,6 +218,9 @@ public:
         InitializeIot();
         InitializeMute();
         GetBacklight()->RestoreBrightness();
+        if (display_ != nullptr) {
+            display_->SetClockBg(&clock_RGB565A8_360x360);
+        }
     }
 
     virtual AudioCodec* GetAudioCodec() override {
