@@ -259,3 +259,7 @@ void Display::SetTheme(const std::string& theme_name) {
     Settings settings("display", true);
     settings.SetString("theme", theme_name);
 }
+
+bool Display::SetEmoImg(const char *value){
+    return false;
+}

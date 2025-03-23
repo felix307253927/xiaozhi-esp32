@@ -3,7 +3,14 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-23 18:42:03
+ * @LastEditTime       : 2025-03-23 22:56:37
+ */
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-02-14 19:48:34
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-23 22:35:45
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -17,9 +24,11 @@
 #include <atomic>
 
 LV_FONT_DECLARE(lv_font_Time_96);
-LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
-LV_IMAGE_DECLARE(_speek_RGB565A8_360x360);
-
+LV_IMAGE_DECLARE(_angry_0_RGB565A8_64x64);
+LV_IMAGE_DECLARE(_confused_0_RGB565A8_64x64);
+LV_IMAGE_DECLARE(_crying_0_RGB565A8_64x64);
+LV_IMAGE_DECLARE(_listen_0_RGB565A8_64x64);
+LV_IMAGE_DECLARE(_speak_0_RGB565A8_64x64);
 class LcdDisplay : public Display {
 protected:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
@@ -33,6 +42,8 @@ protected:
     // 时钟控件
     lv_obj_t* clock_screen_ = nullptr;
     lv_obj_t* time_txt_ = nullptr;
+
+    lv_obj_t* emo_box_ = nullptr;
     lv_obj_t* emo_img_ = nullptr;
 
     int32_t clock_time_count = 1;
@@ -56,7 +67,7 @@ public:
     virtual void SetIcon(const char* icon) override;
     void SetClockBg(const void *value);
     void SetChatBg(const void *value);
-    void SetEmoImg(const char *value);
+    virtual bool SetEmoImg(const char* value) override;
 #if CONFIG_USE_WECHAT_MESSAGE_STYLE
     virtual void SetChatMessage(const char* role, const char* content) override; 
 #endif  

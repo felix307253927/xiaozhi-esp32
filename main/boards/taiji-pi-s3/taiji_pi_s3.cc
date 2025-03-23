@@ -17,9 +17,9 @@
 
 #define TAG "TaijiPiS3Board"
 
-LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
 LV_IMAGE_DECLARE(clock_RGB565A8_360x360);
-LV_IMAGE_DECLARE(_speek_RGB565A8_360x360);
+// LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
+// LV_IMAGE_DECLARE(_speek_RGB565A8_360x360);
 
 LV_FONT_DECLARE(font_puhui_20_4);
 LV_FONT_DECLARE(font_awesome_20_4);
@@ -221,7 +221,7 @@ public:
         GetBacklight()->RestoreBrightness();
         if (display_ != nullptr) {
             display_->SetClockBg(&clock_RGB565A8_360x360);
-            display_->SetChatBg(&chat_RGB565A8_360x360);
+            // display_->SetChatBg(&chat_RGB565A8_360x360);
         }
     }
 

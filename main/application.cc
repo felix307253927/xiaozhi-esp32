@@ -777,7 +777,7 @@ void Application::SetDeviceState(DeviceState state) {
             break;
         case kDeviceStateListening:
             display->SetStatus(Lang::Strings::LISTENING);
-            display->SetEmotion("neutral");
+            display->SetEmoImg("listen");
             ResetDecoder();
             opus_encoder_->ResetState();
 #if CONFIG_USE_AUDIO_PROCESSOR
@@ -794,6 +794,7 @@ void Application::SetDeviceState(DeviceState state) {
             break;
         case kDeviceStateSpeaking:
             display->SetStatus(Lang::Strings::SPEAKING);
+            display->SetEmoImg("speak");
             ResetDecoder();
             codec->EnableOutput(true);
 #if CONFIG_USE_AUDIO_PROCESSOR
