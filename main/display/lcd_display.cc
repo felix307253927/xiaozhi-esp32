@@ -1100,6 +1100,8 @@ void LcdDisplay::SetClockUI(lv_obj_t *parent)
 
     lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
     // 隐藏表情
+    // lv_obj_set_style_text_color(emotion_label_, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_text_opa(emotion_label_, LV_OPA_TRANSP, 0);
     // lv_obj_add_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN);
     // // 添加表情图片
     // emo_img_ = lv_image_create(content_);
@@ -1175,16 +1177,24 @@ void LcdDisplay::SetClockTime()
     if (clock_screen_ == nullptr || time_txt_ == nullptr)
     {
         lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
+        // 延迟10ms 避免waitdog bug
+        vTaskDelay(10);
         lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-        // clock_time_count = 1;
         return;
     }
     auto &app = Application::GetInstance();
+    if (app.GetDeviceState() == kDeviceStateSpeaking){
+        SetChatBg(&_speek_RGB565A8_360x360);
+    } else {
+        SetChatBg(&chat_RGB565A8_360x360);
+    }
     if (app.GetDeviceState() != kDeviceStateIdle)
     {
         // 设备非空闲时不更新时钟
         clock_time_count = 1;
         lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
+        // 延迟10ms 避免waitdog bug
+        vTaskDelay(10);
         lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
         return;
     }
@@ -1202,8 +1212,10 @@ void LcdDisplay::SetClockTime()
     if (clock_time_count % 15 == 0)
     {
         DisplayLockGuard lock(this);
-        lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
+        // 延迟10ms 避免waitdog bug
+        vTaskDelay(10);
+        lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
         time_t now = time(NULL);
         tm *time = localtime(&now);
 
