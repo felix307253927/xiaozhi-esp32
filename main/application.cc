@@ -762,7 +762,7 @@ void Application::SetDeviceState(DeviceState state) {
         case kDeviceStateUnknown:
         case kDeviceStateIdle:
             display->SetStatus(Lang::Strings::STANDBY);
-            display->SetEmotion("neutral");
+            display->SetEmoImg("confused");
 #if CONFIG_USE_AUDIO_PROCESSOR
             audio_processor_.Stop();
 #endif
@@ -772,7 +772,7 @@ void Application::SetDeviceState(DeviceState state) {
             break;
         case kDeviceStateConnecting:
             display->SetStatus(Lang::Strings::CONNECTING);
-            display->SetEmotion("neutral");
+            display->SetEmoImg("confused");
             display->SetChatMessage("system", "");
             break;
         case kDeviceStateListening:

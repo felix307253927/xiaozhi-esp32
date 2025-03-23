@@ -793,7 +793,7 @@ void LcdDisplay::SetupUI()
 
 void LcdDisplay::SetEmotion(const char *emotion)
 {
-    SetEmoImg(emotion);
+    // SetEmoImg(emotion);
     // struct Emotion
     // {
     //     const char *icon;
@@ -1218,19 +1218,6 @@ void LcdDisplay::SetClockTime()
 {
     if (clock_screen_ == nullptr || time_txt_ == nullptr)
     {
-        // 判断container_是否隐藏，如果隐藏则显示
-        DisplayLockGuard lock(this);
-        if (!lv_obj_has_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN))
-        {
-            lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
-            // 延迟10ms 避免waitdog bug
-            vTaskDelay(10);
-        }
-        if (lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN))
-        {
-            lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(10);
-        }
         return;
     }
     auto &app = Application::GetInstance();
