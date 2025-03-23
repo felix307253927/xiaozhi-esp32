@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-02-14 19:48:34
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-23 14:17:46
+ */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
 
@@ -9,6 +16,8 @@
 
 #include <atomic>
 
+LV_FONT_DECLARE(lv_font_Time_96);
+
 class LcdDisplay : public Display {
 protected:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
@@ -19,10 +28,18 @@ protected:
     lv_obj_t* content_ = nullptr;
     lv_obj_t* container_ = nullptr;
     lv_obj_t* side_bar_ = nullptr;
+    // 时钟控件
+    lv_obj_t* clock_screen_ = nullptr;
+    lv_obj_t* time_txt_ = nullptr;
+    lv_obj_t* emo_img_ = nullptr;
+
+    int32_t clock_time_count = 1;
 
     DisplayFonts fonts_;
 
     void SetupUI();
+    void SetClockUI(lv_obj_t *parent);
+    virtual void SetClockTime() override;
     virtual bool Lock(int timeout_ms = 0) override;
     virtual void Unlock() override;
 
@@ -35,6 +52,9 @@ public:
     ~LcdDisplay();
     virtual void SetEmotion(const char* emotion) override;
     virtual void SetIcon(const char* icon) override;
+    void SetClockBg(const void *value);
+    void SetChatBg(const void *value);
+    void SetEmoImg(const char *value);
 #if CONFIG_USE_WECHAT_MESSAGE_STYLE
     virtual void SetChatMessage(const char* role, const char* content) override; 
 #endif  
@@ -83,6 +103,14 @@ public:
 class Mcu8080LcdDisplay : public LcdDisplay {
 public:
     Mcu8080LcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
+                      int width, int height, int offset_x, int offset_y,
+                      bool mirror_x, bool mirror_y, bool swap_xy,
+                      DisplayFonts fonts);
+};
+
+class ClockSpiLcdDisplay : public LcdDisplay {
+public:
+ClockSpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
                       int width, int height, int offset_x, int offset_y,
                       bool mirror_x, bool mirror_y, bool swap_xy,
                       DisplayFonts fonts);

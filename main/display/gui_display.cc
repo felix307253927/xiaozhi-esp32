@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-03-23 09:22:29
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-23 12:55:46
+ * @LastEditTime       : 2025-03-23 13:51:31
  */
 /*
  * @Author             : Felix
@@ -50,7 +50,7 @@
 #define LIGHT_BORDER_COLOR lv_color_hex(0xE0E0E0)          // Light gray border
 #define LIGHT_LOW_BATTERY_COLOR lv_color_black()           // Black for light mode
 
-LV_FONT_DECLARE(lv_font_AlexBrush_Regular_96)
+LV_FONT_DECLARE(lv_font_Time_96);
 
 // Theme color structure
 struct ThemeColors
@@ -172,6 +172,7 @@ SpiGuiDisplay::SpiGuiDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_h
     }
 
     SetupUI();
+    SetClockUI(lv_screen_active());
 }
 
 // RGB LCD实现
@@ -249,6 +250,7 @@ RgbGuiDisplay::RgbGuiDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_h
     }
 
     SetupUI();
+    SetClockUI(lv_screen_active());
 }
 
 GuiDisplay::~GuiDisplay()
@@ -694,12 +696,6 @@ void GuiDisplay::SetupUI()
     lv_obj_set_style_text_color(low_battery_label, lv_color_white(), 0);
     lv_obj_center(low_battery_label);
     lv_obj_add_flag(low_battery_popup_, LV_OBJ_FLAG_HIDDEN);
-
-    // 隐藏聊天消息, 仅显示时钟
-    lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
-    SetClockUI(screen);
-    // clock_time_count = 15;
-    lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
 }
 #endif
 
@@ -710,6 +706,8 @@ void GuiDisplay::SetClockUI(lv_obj_t *parent)
     lv_obj_set_size(clock_screen_, LV_HOR_RES, LV_VER_RES);      // 设置时钟大小
     lv_obj_center(clock_screen_);                                // 居中显示
     lv_obj_set_style_radius(clock_screen_, LV_RADIUS_CIRCLE, 0); // 圆形外观
+    lv_obj_set_style_border_width(clock_screen_, 0, 0);          // 无边框
+    lv_obj_set_style_pad_all(clock_screen_, 0, 0);               // 无内边距
     // Flex 布局 水平和垂直居中
     lv_obj_set_flex_flow(clock_screen_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(clock_screen_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
@@ -717,9 +715,9 @@ void GuiDisplay::SetClockUI(lv_obj_t *parent)
     lv_obj_set_style_bg_opa(clock_screen_, LV_OPA_TRANSP, 0);              // 设置背景透明
 
     time_txt_ = lv_label_create(clock_screen_);  // 创建一个空对象，用于显示时钟
-    lv_obj_set_size(time_txt_, LV_HOR_RES, 100); // 设置时钟大小
+    lv_obj_set_size(time_txt_, LV_HOR_RES, lv_font_Time_96.line_height); // 设置时钟大小
     // lv_obj_set_style_text_font(time_txt_, fonts_.text_font, 0);
-    lv_obj_set_style_text_font(time_txt_, &lv_font_AlexBrush_Regular_96, 0); // 设置字体
+    lv_obj_set_style_text_font(time_txt_, &lv_font_Time_96, 0); // 设置字体
     lv_obj_set_style_text_color(time_txt_, current_theme.text, 0);
     lv_label_set_text(time_txt_, "00:00");                           // 设置初始时间
     lv_obj_set_style_text_color(time_txt_, lv_color_white(), 0);     // 设置颜色

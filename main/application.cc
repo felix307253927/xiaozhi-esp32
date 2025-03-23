@@ -269,6 +269,34 @@ void Application::ToggleChatState() {
         });
     }
 }
+void Application::StartChatState() {
+    if (device_state_ == kDeviceStateActivating) {
+        SetDeviceState(kDeviceStateIdle);
+        return;
+    }
+
+    if (!protocol_) {
+        ESP_LOGE(TAG, "Protocol not initialized");
+        return;
+    }
+
+    if (device_state_ == kDeviceStateIdle) {
+        Schedule([this]() {
+            SetDeviceState(kDeviceStateConnecting);
+            if (!protocol_->OpenAudioChannel()) {
+                return;
+            }
+
+            keep_listening_ = true;
+            protocol_->SendStartListening(kListeningModeAutoStop);
+            SetDeviceState(kDeviceStateListening);
+        });
+    } else if (device_state_ == kDeviceStateSpeaking) {
+        Schedule([this]() {
+            AbortSpeaking(kAbortReasonNone);
+        });
+    }
+}
 
 void Application::StartListening() {
     if (device_state_ == kDeviceStateActivating) {
