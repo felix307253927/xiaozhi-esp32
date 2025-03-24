@@ -694,7 +694,7 @@ void LcdDisplay::SetupUI()
 
     /* Status bar */
     status_bar_ = lv_obj_create(container_);
-    lv_obj_set_size(status_bar_, LV_HOR_RES, fonts_.text_font->line_height);
+    lv_obj_set_size(status_bar_, LV_HOR_RES, fonts_.text_font->line_height + 4);
     lv_obj_set_style_radius(status_bar_, 0, 0);
     lv_obj_set_style_bg_color(status_bar_, current_theme.background, 0);
     lv_obj_set_style_text_color(status_bar_, current_theme.text, 0);
@@ -707,14 +707,13 @@ void LcdDisplay::SetupUI()
     lv_obj_set_width(content_, LV_HOR_RES);
     lv_obj_set_flex_grow(content_, 1);
     lv_obj_set_style_pad_all(content_, 5, 0);
-    lv_obj_set_style_bg_color(content_, current_theme.chat_background, 0);
+    lv_obj_set_style_bg_color(content_, lv_color_white(), 0);
     lv_obj_set_style_border_width(content_, 0, 0);
-
     lv_obj_set_flex_flow(content_, LV_FLEX_FLOW_COLUMN);                                                     // 垂直布局（从上到下）
     lv_obj_set_flex_align(content_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY); // 子对象居中对齐，等距分布
 
     emo_box_ = lv_obj_create(content_);
-    lv_obj_set_size(emo_box_, LV_HOR_RES, 80);
+    lv_obj_set_size(emo_box_, LV_HOR_RES, 200);
     lv_obj_set_style_bg_opa(emo_box_, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(emo_box_, 0, 0);
     lv_obj_set_style_pad_all(emo_box_, 0, 0);
@@ -727,15 +726,19 @@ void LcdDisplay::SetupUI()
     lv_obj_add_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN);
     emo_img_ = lv_img_create(emo_box_);
     lv_obj_set_style_border_width(emo_img_, 0, 0);
+    lv_obj_set_flex_grow(emo_img_, 1); // 设置为自动增长
     lv_obj_set_style_bg_opa(emo_img_, LV_OPA_TRANSP, 0);
 
     chat_message_label_ = lv_label_create(content_);
+    // lv_obj_set_height(chat_message_label_, 1);
+    lv_obj_set_height(chat_message_label_, fonts_.text_font->line_height);
     lv_label_set_text(chat_message_label_, "");
     lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.9);                   // 限制宽度为屏幕宽度的 90%
-    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_WRAP);           // 设置为自动换行模式
+    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);           // 设置为自动换行模式
     lv_obj_set_style_text_align(chat_message_label_, LV_TEXT_ALIGN_CENTER, 0); // 设置文本居中对齐
     lv_obj_set_style_text_color(chat_message_label_, current_theme.text, 0);
-    lv_obj_set_flex_grow(chat_message_label_, 1); // 设置为自动增长
+    // lv_obj_set_flex_grow(chat_message_label_, 1); // 设置为自动增长
+    lv_obj_add_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN);
 
     /* Status bar */
     lv_obj_set_flex_flow(status_bar_, LV_FLEX_FLOW_ROW);
@@ -1237,7 +1240,8 @@ void LcdDisplay::SetClockTime()
         if (lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN))
         {
             lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(20);
+            vTaskDelay(pdMS_TO_TICKS(50));
+            esp_task_wdt_reset();
         }
         return;
     }
@@ -1260,12 +1264,14 @@ void LcdDisplay::SetClockTime()
         {
             lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
             // 延迟10ms 避免waitdog bug
-            vTaskDelay(20);
+            vTaskDelay(pdMS_TO_TICKS(50));
+            esp_task_wdt_reset();
         }
         if (lv_obj_has_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN))
         {
             lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(20);
+            vTaskDelay(pdMS_TO_TICKS(50));
+            esp_task_wdt_reset();
         }
         time_t now = time(NULL);
         tm *time = localtime(&now);
@@ -1293,11 +1299,11 @@ bool LcdDisplay::SetEmoImg(const char *value)
     };
 
     static const EmoImgMap emo_map[] = {
-        {"angry", &_angry_0_RGB565A8_64x64, "Set angry emotion"},
-        {"crying", &_crying_0_RGB565A8_64x64, "Set crying emotion"},
-        {"listen", &_speak_0_RGB565A8_64x64, "Set speak emotion"}, // speak 更像说
-        {"confused", &_confused_0_RGB565A8_64x64, "Set confused emotion"},
-        {"speak", &_listen_0_RGB565A8_64x64, "Set listen emotion"}, // listen 更像听
+        {"angry", &angry, "Set angry emotion"},
+        {"crying", &crying, "Set crying emotion"},
+        {"listen", &listen, "Set speak emotion"}, // speak 更像说
+        {"confused", &confused, "Set confused emotion"},
+        {"speak", &speak, "Set listen emotion"}, // listen 更像听
     };
 
     const void* new_src = nullptr;
@@ -1315,6 +1321,7 @@ bool LcdDisplay::SetEmoImg(const char *value)
     // 如果找到匹配的表情
     if (new_src) {
         is_emo = true;
+
         if (lv_img_get_src(emo_img_) != new_src) {
             lv_img_set_src(emo_img_, new_src);
             ESP_LOGI(TAG, "%s", log_msg);

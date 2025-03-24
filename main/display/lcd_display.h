@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-23 22:56:37
+ * @LastEditTime       : 2025-03-24 12:27:19
  */
 /*
  * @Author             : Felix
@@ -24,11 +24,11 @@
 #include <atomic>
 
 LV_FONT_DECLARE(lv_font_Time_96);
-LV_IMAGE_DECLARE(_angry_0_RGB565A8_64x64);
-LV_IMAGE_DECLARE(_confused_0_RGB565A8_64x64);
-LV_IMAGE_DECLARE(_crying_0_RGB565A8_64x64);
-LV_IMAGE_DECLARE(_listen_0_RGB565A8_64x64);
-LV_IMAGE_DECLARE(_speak_0_RGB565A8_64x64);
+LV_IMAGE_DECLARE(angry);
+LV_IMAGE_DECLARE(confused);
+LV_IMAGE_DECLARE(crying);
+LV_IMAGE_DECLARE(listen);
+LV_IMAGE_DECLARE(speak);
 class LcdDisplay : public Display {
 protected:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
