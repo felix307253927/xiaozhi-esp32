@@ -667,7 +667,6 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_text_font(screen, fonts_.text_font, 0);
     lv_obj_set_style_text_color(screen, current_theme.text, 0);
     lv_obj_set_style_bg_color(screen, current_theme.background, 0);
-    lv_obj_set_style_bg_opa(screen, LV_OPA_TRANSP, 0);
 
     /* Container */
     container_ = lv_obj_create(screen);
@@ -678,7 +677,6 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_pad_row(container_, 0, 0);
     lv_obj_set_style_bg_color(container_, current_theme.background, 0);
     lv_obj_set_style_border_width(container_, 0, 0);
-    lv_obj_set_style_bg_opa(container_, LV_OPA_TRANSP, 0);
 
     /* Status bar */
     status_bar_ = lv_obj_create(container_);
@@ -687,7 +685,6 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_bg_color(status_bar_, current_theme.background, 0);
     lv_obj_set_style_text_color(status_bar_, current_theme.text, 0);
     lv_obj_set_style_border_width(status_bar_, 0, 0);
-    lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
 
     /* Content */
     content_ = lv_obj_create(container_);
@@ -698,7 +695,6 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_pad_all(content_, 5, 0);
     // lv_obj_set_style_bg_color(content_, current_theme.chat_background, 0);
     lv_obj_set_style_border_width(content_, 0, 0);
-    lv_obj_set_style_bg_opa(content_, LV_OPA_TRANSP, 0);
 
     lv_obj_set_flex_flow(content_, LV_FLEX_FLOW_COLUMN);                                                     // 垂直布局（从上到下）
     lv_obj_set_flex_align(content_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY); // 子对象居中对齐，等距分布
@@ -723,14 +719,12 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_pad_left(status_bar_, 2, 0);
     lv_obj_set_style_pad_right(status_bar_, 2, 0);
     lv_obj_set_style_border_width(status_bar_, 0, 0);
-    lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
 
     network_label_ = lv_label_create(status_bar_);
     lv_label_set_text(network_label_, "");
     lv_obj_set_style_text_font(network_label_, fonts_.icon_font, 0);
     lv_obj_set_style_text_color(network_label_, current_theme.text, 0);
     lv_obj_set_style_border_width(network_label_, 0, 0);
-    lv_obj_set_style_bg_opa(network_label_, LV_OPA_TRANSP, 0);
 
     notification_label_ = lv_label_create(status_bar_);
     lv_obj_set_flex_grow(notification_label_, 1);
@@ -739,7 +733,6 @@ void LcdDisplay::SetupUI()
     lv_label_set_text(notification_label_, "");
     lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_style_border_width(notification_label_, 0, 0);
-    lv_obj_set_style_bg_opa(notification_label_, LV_OPA_TRANSP, 0);
 
     status_label_ = lv_label_create(status_bar_);
     lv_obj_set_flex_grow(status_label_, 1);
@@ -748,7 +741,6 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_text_color(status_label_, current_theme.text, 0);
     lv_label_set_text(status_label_, Lang::Strings::INITIALIZING);
     lv_obj_set_style_border_width(status_label_, 0, 0);
-    lv_obj_set_style_bg_opa(status_label_, LV_OPA_TRANSP, 0);
 
     mute_label_ = lv_label_create(status_bar_);
     lv_label_set_text(mute_label_, "");
@@ -1114,7 +1106,7 @@ void LcdDisplay::SetClockUI(lv_obj_t *parent)
 
     lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
     // 隐藏表情
-    lv_obj_set_style_text_opa(emotion_label_, LV_OPA_TRANSP, 0);
+    // lv_obj_set_style_text_opa(emotion_label_, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(network_label_, 0, 0);
     lv_obj_set_style_border_width(status_bar_, 0, 0);
     lv_obj_set_style_border_width(status_label_, 0, 0);
@@ -1131,43 +1123,43 @@ void LcdDisplay::SetClockUI(lv_obj_t *parent)
 
     // 将container_内部的元素背景全部设置为透明
     // 递归地将container_及其所有子元素的背景设置为透明
-    if (container_ != nullptr)
-    {
-        // 设置container_本身透明
-        lv_obj_set_style_bg_opa(container_, LV_OPA_TRANSP, 0);
+    // if (container_ != nullptr)
+    // {
+    //     // 设置container_本身透明
+    //     lv_obj_set_style_bg_opa(container_, LV_OPA_TRANSP, 0);
 
-        // 设置status_bar_及其子元素透明
-        if (status_bar_ != nullptr)
-        {
-            lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
-            uint32_t child_cnt = lv_obj_get_child_cnt(status_bar_);
-            for (uint32_t i = 0; i < child_cnt; i++)
-            {
-                lv_obj_t *child = lv_obj_get_child(status_bar_, i);
-                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
-            }
-        }
+    //     // 设置status_bar_及其子元素透明
+    //     if (status_bar_ != nullptr)
+    //     {
+    //         lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
+    //         uint32_t child_cnt = lv_obj_get_child_cnt(status_bar_);
+    //         for (uint32_t i = 0; i < child_cnt; i++)
+    //         {
+    //             lv_obj_t *child = lv_obj_get_child(status_bar_, i);
+    //             lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
+    //         }
+    //     }
 
-        // 设置content_及其子元素透明
-        if (content_ != nullptr)
-        {
-            lv_obj_set_style_bg_opa(content_, LV_OPA_TRANSP, 0);
-            uint32_t child_cnt = lv_obj_get_child_cnt(content_);
-            for (uint32_t i = 0; i < child_cnt; i++)
-            {
-                lv_obj_t *child = lv_obj_get_child(content_, i);
-                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
+    //     // 设置content_及其子元素透明
+    //     if (content_ != nullptr)
+    //     {
+    //         lv_obj_set_style_bg_opa(content_, LV_OPA_TRANSP, 0);
+    //         uint32_t child_cnt = lv_obj_get_child_cnt(content_);
+    //         for (uint32_t i = 0; i < child_cnt; i++)
+    //         {
+    //             lv_obj_t *child = lv_obj_get_child(content_, i);
+    //             lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
 
-                // 处理content_子元素的子元素（例如消息气泡及其内容）
-                uint32_t grandchild_cnt = lv_obj_get_child_cnt(child);
-                for (uint32_t j = 0; j < grandchild_cnt; j++)
-                {
-                    lv_obj_t *grandchild = lv_obj_get_child(child, j);
-                    lv_obj_set_style_bg_opa(grandchild, LV_OPA_TRANSP, 0);
-                }
-            }
-        }
-    }
+    //             // 处理content_子元素的子元素（例如消息气泡及其内容）
+    //             uint32_t grandchild_cnt = lv_obj_get_child_cnt(child);
+    //             for (uint32_t j = 0; j < grandchild_cnt; j++)
+    //             {
+    //                 lv_obj_t *grandchild = lv_obj_get_child(child, j);
+    //                 lv_obj_set_style_bg_opa(grandchild, LV_OPA_TRANSP, 0);
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 
@@ -1202,19 +1194,19 @@ void LcdDisplay::SetClockTime()
             {
                 lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
                 // 延迟10ms 避免waitdog bug
-                vTaskDelay(10);
+                vTaskDelay(50);
             }
             lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(10);
+            vTaskDelay(50);
         }
         return;
     }
     auto &app = Application::GetInstance();
-    if (app.GetDeviceState() == kDeviceStateSpeaking){
-        SetChatBg(&_speek_RGB565A8_360x360);
-    } else {
-        SetChatBg(&chat_RGB565A8_360x360);
-    }
+    // if (app.GetDeviceState() == kDeviceStateSpeaking){
+    //     SetChatBg(&_speek_RGB565A8_360x360);
+    // } else {
+    //     SetChatBg(&chat_RGB565A8_360x360);
+    // }
     if (app.GetDeviceState() != kDeviceStateIdle)
     {
         // 设备非空闲时不更新时钟

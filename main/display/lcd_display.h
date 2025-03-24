@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-23 18:42:03
+ * @LastEditTime       : 2025-03-24 17:41:21
  */
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
@@ -17,8 +17,8 @@
 #include <atomic>
 
 LV_FONT_DECLARE(lv_font_Time_96);
-LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
-LV_IMAGE_DECLARE(_speek_RGB565A8_360x360);
+// LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
+// LV_IMAGE_DECLARE(_speek_RGB565A8_360x360);
 
 class LcdDisplay : public Display {
 protected:
