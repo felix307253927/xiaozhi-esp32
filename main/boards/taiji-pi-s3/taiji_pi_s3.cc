@@ -17,7 +17,7 @@
 
 #define TAG "TaijiPiS3Board"
 
-LV_IMAGE_DECLARE(clock_RGB565A8_360x360);
+LV_IMAGE_DECLARE(clock_rgb);
 // LV_IMAGE_DECLARE(chat_RGB565A8_360x360);
 // LV_IMAGE_DECLARE(_speek_RGB565A8_360x360);
 
@@ -220,7 +220,7 @@ public:
         InitializeMute();
         GetBacklight()->RestoreBrightness();
         if (display_ != nullptr) {
-            display_->SetClockBg(&clock_RGB565A8_360x360);
+            display_->SetClockBg(&clock_rgb);
             // display_->SetChatBg(&chat_RGB565A8_360x360);
         }
     }
