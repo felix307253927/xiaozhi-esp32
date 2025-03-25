@@ -26,15 +26,15 @@
 #define DARK_LOW_BATTERY_COLOR lv_color_hex(0xFF0000)      // Red for dark mode
 
 // Color definitions for light theme
-#define LIGHT_BACKGROUND_COLOR lv_color_white()            // White background
-#define LIGHT_TEXT_COLOR lv_color_black()                  // Black text
-#define LIGHT_CHAT_BACKGROUND_COLOR lv_color_hex(0xE0E0E0) // Light gray background
-#define LIGHT_USER_BUBBLE_COLOR lv_color_hex(0x95EC69)     // WeChat green
-#define LIGHT_ASSISTANT_BUBBLE_COLOR lv_color_white()      // White
-#define LIGHT_SYSTEM_BUBBLE_COLOR lv_color_hex(0xE0E0E0)   // Light gray
-#define LIGHT_SYSTEM_TEXT_COLOR lv_color_hex(0x666666)     // Dark gray text
-#define LIGHT_BORDER_COLOR lv_color_hex(0xE0E0E0)          // Light gray border
-#define LIGHT_LOW_BATTERY_COLOR lv_color_black()           // Black for light mode
+#define LIGHT_BACKGROUND_COLOR lv_color_white()          // White background
+#define LIGHT_TEXT_COLOR lv_color_black()                // Black text
+#define LIGHT_CHAT_BACKGROUND_COLOR lv_color_white()     // Light gray background
+#define LIGHT_USER_BUBBLE_COLOR lv_color_hex(0x95EC69)   // WeChat green
+#define LIGHT_ASSISTANT_BUBBLE_COLOR lv_color_white()    // White
+#define LIGHT_SYSTEM_BUBBLE_COLOR lv_color_hex(0xE0E0E0) // Light gray
+#define LIGHT_SYSTEM_TEXT_COLOR lv_color_hex(0x666666)   // Dark gray text
+#define LIGHT_BORDER_COLOR lv_color_hex(0xE0E0E0)        // Light gray border
+#define LIGHT_LOW_BATTERY_COLOR lv_color_black()         // Black for light mode
 
 // Theme color structure
 struct ThemeColors
@@ -103,7 +103,7 @@ SpiLcdDisplay::SpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_h
 
     ESP_LOGI(TAG, "Initialize LVGL port");
     lvgl_port_cfg_t port_cfg = ESP_LVGL_PORT_INIT_CONFIG();
-    port_cfg.task_priority = 5;  // 提高LVGL任务优先级
+    port_cfg.task_priority = 5; // 提高LVGL任务优先级
     lvgl_port_init(&port_cfg);
 
     ESP_LOGI(TAG, "Adding LCD screen");
@@ -313,6 +313,8 @@ ClockSpiLcdDisplay::ClockSpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_l
 
     SetupUI();
     SetClockUI(lv_screen_active());
+    // 启动表情
+    SetEmoImg("confused");
 }
 
 LcdDisplay::~LcdDisplay()
@@ -724,7 +726,9 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_text_color(emotion_label_, current_theme.text, 0);
     lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
     lv_obj_add_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN);
-    emo_img_ = lv_img_create(emo_box_);
+    emo_img_ = lv_animimg_create(emo_box_);
+    lv_animimg_set_duration(emo_img_, 1000);
+    lv_animimg_set_repeat_count(emo_img_, LV_ANIM_REPEAT_INFINITE);
     lv_obj_set_style_border_width(emo_img_, 0, 0);
     lv_obj_set_flex_grow(emo_img_, 1); // 设置为自动增长
     lv_obj_set_style_bg_opa(emo_img_, LV_OPA_TRANSP, 0);
@@ -733,9 +737,9 @@ void LcdDisplay::SetupUI()
     // lv_obj_set_height(chat_message_label_, 1);
     lv_obj_set_height(chat_message_label_, fonts_.text_font->line_height);
     lv_label_set_text(chat_message_label_, "");
-    lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.9);                   // 限制宽度为屏幕宽度的 90%
-    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);           // 设置为自动换行模式
-    lv_obj_set_style_text_align(chat_message_label_, LV_TEXT_ALIGN_CENTER, 0); // 设置文本居中对齐
+    lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.9);                    // 限制宽度为屏幕宽度的 90%
+    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_SCROLL_CIRCULAR); // 设置为自动换行模式
+    lv_obj_set_style_text_align(chat_message_label_, LV_TEXT_ALIGN_CENTER, 0);  // 设置文本居中对齐
     lv_obj_set_style_text_color(chat_message_label_, current_theme.text, 0);
     // lv_obj_set_flex_grow(chat_message_label_, 1); // 设置为自动增长
     lv_obj_add_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN);
@@ -1205,6 +1209,7 @@ void LcdDisplay::SetClockBg(const void *value)
     {
         DisplayLockGuard lock(this);
         // 设置时钟背景
+        lv_obj_set_style_bg_img_src(clock_screen_, NULL, 0);
         lv_obj_set_style_bg_img_src(clock_screen_, value, 0);
     }
 }
@@ -1214,6 +1219,7 @@ void LcdDisplay::SetChatBg(const void *value)
     {
         DisplayLockGuard lock(this);
         // 设置时钟背景
+        lv_obj_set_style_bg_img_src(container_, NULL, 0);
         lv_obj_set_style_bg_img_src(container_, value, 0);
     }
 }
@@ -1235,13 +1241,12 @@ void LcdDisplay::SetClockTime()
         {
             lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
             // 延迟10ms 避免waitdog bug
-            vTaskDelay(20);
+            vTaskDelay(100);
         }
         if (lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN))
         {
             lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(pdMS_TO_TICKS(50));
-            esp_task_wdt_reset();
+            vTaskDelay(pdMS_TO_TICKS(100));
         }
         return;
     }
@@ -1250,13 +1255,13 @@ void LcdDisplay::SetClockTime()
         clock_time_count++;
     }
 
-    // 15秒切换时钟
-    if (clock_time_count < 15)
+    // 30秒切换时钟
+    if (clock_time_count <= 30)
     {
         return;
     }
     // 15秒更新一次时钟
-    if (clock_time_count % 15 == 0)
+    if (clock_time_count % 30 == 0)
     {
         DisplayLockGuard lock(this);
         // 判断是否隐藏，如果隐藏则显示
@@ -1264,14 +1269,12 @@ void LcdDisplay::SetClockTime()
         {
             lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
             // 延迟10ms 避免waitdog bug
-            vTaskDelay(pdMS_TO_TICKS(50));
-            esp_task_wdt_reset();
+            vTaskDelay(pdMS_TO_TICKS(100));
         }
         if (lv_obj_has_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN))
         {
             lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(pdMS_TO_TICKS(50));
-            esp_task_wdt_reset();
+            vTaskDelay(pdMS_TO_TICKS(100));
         }
         time_t now = time(NULL);
         tm *time = localtime(&now);
@@ -1285,65 +1288,56 @@ void LcdDisplay::SetClockTime()
 
 bool LcdDisplay::SetEmoImg(const char *value)
 {
-    DisplayLockGuard lock(this); // 添加锁保护
     bool is_emo = false;
-    if (emo_img_ == nullptr) {
+    if (emo_img_ == nullptr)
+    {
         return false;
     }
 
     // 图片源映射
-    struct EmoImgMap {
-        const char* name;
-        const void* src;
-        const char* log_msg;
+    struct EmoImgMap
+    {
+        const char *name;
+        const lv_image_dsc_t *src[2];
+        const char *log_msg;
     };
 
     static const EmoImgMap emo_map[] = {
-        {"angry", &angry, "Set angry emotion"},
-        {"crying", &crying, "Set crying emotion"},
-        {"listen", &listen, "Set speak emotion"}, // speak 更像说
-        {"confused", &confused, "Set confused emotion"},
-        {"speak", &speak, "Set listen emotion"}, // listen 更像听
+        {"confused", {&confused1, &confused2}, "Set confused emotion"},
+        {"listen", {&listen1, &listen2}, "Set listen emotion"}, // speak 更像说
+        {"speak", {&speak1, &speak2}, "Set speak emotion"}, // listen 更像听
     };
 
-    const void* new_src = nullptr;
-    const char* log_msg = nullptr;
+    const void *new_src = nullptr;
+    const char *log_msg = nullptr;
 
     // 查找匹配的表情
-    for (const auto& emo : emo_map) {
-        if (value == emo.name) {
+    for (const auto &emo : emo_map)
+    {
+        if (value == emo.name)
+        {
             new_src = emo.src;
             log_msg = emo.log_msg;
             break;
         }
     }
 
-    // 如果找到匹配的表情
-    if (new_src) {
-        is_emo = true;
-
-        if (lv_img_get_src(emo_img_) != new_src) {
-            lv_img_set_src(emo_img_, new_src);
-            ESP_LOGI(TAG, "%s", log_msg);
-            // 增加延迟时间，给LVGL更多时间处理
-            vTaskDelay(pdMS_TO_TICKS(50));
-            // 重置看门狗计时器
-            esp_task_wdt_reset();
-        }
+    if (!new_src)
+    {
+        new_src = emo_map[0].src;
     }
+    
+    DisplayLockGuard lock(this); // 添加锁保护
+    is_emo = true;
 
-        // if (is_emo)
-        // {
-        //     if (lv_obj_has_flag(emo_img_, LV_OBJ_FLAG_HIDDEN))
-        //     {
-        //         lv_obj_clear_flag(emo_img_, LV_OBJ_FLAG_HIDDEN);
-        //         vTaskDelay(10);
-        //     }
-        //     if (!lv_obj_has_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN))
-        //     {
-        //         lv_obj_add_flag(emotion_label_, LV_OBJ_FLAG_HIDDEN);
-        //         vTaskDelay(10);
-        //     }
-        // }
+    if (lv_animimg_get_src(emo_img_) != new_src)
+    {
+        lv_animimg_set_src(emo_img_, NULL, 2);
+        lv_animimg_set_src(emo_img_, (const void **)new_src, 2);
+        lv_animimg_start(emo_img_);
+        ESP_LOGI(TAG, "%s", log_msg);
+        // 增加延迟时间，给LVGL更多时间处理
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
     return is_emo;
 }

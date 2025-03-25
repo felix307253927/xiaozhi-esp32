@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-24 12:27:19
+ * @LastEditTime       : 2025-03-25 22:58:46
  */
 /*
  * @Author             : Felix
@@ -22,13 +22,14 @@
 #include <font_emoji.h>
 
 #include <atomic>
-
+// #include "speak_lottie.h"
 LV_FONT_DECLARE(lv_font_Time_96);
-LV_IMAGE_DECLARE(angry);
-LV_IMAGE_DECLARE(confused);
-LV_IMAGE_DECLARE(crying);
-LV_IMAGE_DECLARE(listen);
-LV_IMAGE_DECLARE(speak);
+LV_IMAGE_DECLARE(confused1);
+LV_IMAGE_DECLARE(confused2);
+LV_IMAGE_DECLARE(listen1);
+LV_IMAGE_DECLARE(listen2);
+LV_IMAGE_DECLARE(speak1);
+LV_IMAGE_DECLARE(speak2);
 class LcdDisplay : public Display {
 protected:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
