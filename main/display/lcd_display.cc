@@ -1138,9 +1138,8 @@ void LcdDisplay::SetClockUI(lv_obj_t *parent)
     lv_obj_set_size(time_txt_, LV_HOR_RES, lv_font_Time_96.line_height); // 设置时钟大小
     // lv_obj_set_style_text_font(time_txt_, fonts_.text_font, 0);
     lv_obj_set_style_text_font(time_txt_, &lv_font_Time_96, 0); // 设置字体
-    lv_obj_set_style_text_color(time_txt_, current_theme.text, 0);
+    lv_obj_set_style_text_color(time_txt_, lv_color_hex(0xfee253), 0);
     lv_label_set_text(time_txt_, "00:00");                           // 设置初始时间
-    lv_obj_set_style_text_color(time_txt_, lv_color_white(), 0);     // 设置颜色
     lv_obj_set_style_text_align(time_txt_, LV_TEXT_ALIGN_CENTER, 0); // 设置居中对齐
     lv_obj_set_style_bg_opa(time_txt_, LV_OPA_TRANSP, 0);            // 设置背景完全透明
     lv_obj_set_style_border_width(time_txt_, 0, 0);                  // 设置边框宽度为0
@@ -1241,12 +1240,12 @@ void LcdDisplay::SetClockTime()
         {
             lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
             // 延迟10ms 避免waitdog bug
-            vTaskDelay(100);
+            vTaskDelay(50);
         }
         if (lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN))
         {
             lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(pdMS_TO_TICKS(100));
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
         return;
     }
@@ -1269,12 +1268,12 @@ void LcdDisplay::SetClockTime()
         {
             lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
             // 延迟10ms 避免waitdog bug
-            vTaskDelay(pdMS_TO_TICKS(100));
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
         if (lv_obj_has_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN))
         {
             lv_obj_clear_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
-            vTaskDelay(pdMS_TO_TICKS(100));
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
         time_t now = time(NULL);
         tm *time = localtime(&now);
@@ -1337,7 +1336,7 @@ bool LcdDisplay::SetEmoImg(const char *value)
         lv_animimg_start(emo_img_);
         ESP_LOGI(TAG, "%s", log_msg);
         // 增加延迟时间，给LVGL更多时间处理
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
     return is_emo;
 }
