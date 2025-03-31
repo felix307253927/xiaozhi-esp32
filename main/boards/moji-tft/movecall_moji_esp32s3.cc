@@ -21,7 +21,6 @@
 
 #define TAG "MovecallMojiESP32S3"
 
-LV_IMAGE_DECLARE(_nezha_RGB565A8_240x240);
 LV_FONT_DECLARE(font_puhui_20_4);
 LV_FONT_DECLARE(font_awesome_20_4);
 
@@ -117,7 +116,7 @@ public:
         GetBacklight()->RestoreBrightness();
 
         if (display_ != nullptr) {
-            display_->SetClockBg(&_nezha_RGB565A8_240x240);
+            // display_->SetClockBg(&_nezha_RGB565A8_240x240);
             // display_->SetChatBg(&chat_RGB565A8_360x360);
         }
     }
