@@ -286,7 +286,6 @@ void Application::StartChatState() {
                 return;
             }
 
-            keep_listening_ = true;
             protocol_->SendStartListening(kListeningModeAutoStop);
             SetDeviceState(kDeviceStateListening);
         });

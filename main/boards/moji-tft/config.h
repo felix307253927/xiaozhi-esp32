@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-03-31 21:30:03
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-03-31 22:07:24
+ */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
 
@@ -21,6 +28,12 @@
 
 #define BUILTIN_LED_GPIO        GPIO_NUM_21
 #define BOOT_BUTTON_GPIO        GPIO_NUM_0
+
+#define VOLUME_UP_BUTTON_GPIO   GPIO_NUM_40
+#define VOLUME_DOWN_BUTTON_GPIO 
+
+#define UART_TXD GPIO_NUM_45
+#define UART_RXD GPIO_NUM_46
 
 #define DISPLAY_WIDTH   240
 #define DISPLAY_HEIGHT  240
