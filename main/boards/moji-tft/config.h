@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-03-31 21:30:03
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-03-31 22:07:24
+ * @LastEditTime       : 2025-04-01 23:49:07
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
@@ -30,10 +30,12 @@
 #define BOOT_BUTTON_GPIO        GPIO_NUM_0
 
 #define VOLUME_UP_BUTTON_GPIO   GPIO_NUM_40
-#define VOLUME_DOWN_BUTTON_GPIO 
+#define VOLUME_DOWN_BUTTON_GPIO GPIO_NUM_39
 
 #define UART_TXD GPIO_NUM_45
 #define UART_RXD GPIO_NUM_46
+#define UART_NUM UART_NUM_1
+#define BUF_SIZE 2048
 
 #define DISPLAY_WIDTH   240
 #define DISPLAY_HEIGHT  240

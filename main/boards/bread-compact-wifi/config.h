@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-02-14 19:48:34
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-04-01 23:26:04
+ * @LastEditTime       : 2025-04-01 23:43:29
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
@@ -43,6 +43,8 @@
 
 #define UART_TXD GPIO_NUM_45
 #define UART_RXD GPIO_NUM_46
+#define UART_NUM UART_NUM_1
+#define BUF_SIZE 2048
 
 #define DISPLAY_SDA_PIN GPIO_NUM_41
 #define DISPLAY_SCL_PIN GPIO_NUM_42

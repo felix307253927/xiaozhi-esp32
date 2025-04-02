@@ -32,9 +32,6 @@
 LV_FONT_DECLARE(font_puhui_14_1);
 LV_FONT_DECLARE(font_awesome_14_1);
 
-#define UART_NUM UART_NUM_1
-#define BUF_SIZE 2048
-
 static QueueHandle_t uart0_queue;
 class CompactWifiBoard : public WifiBoard
 {
@@ -191,10 +188,14 @@ private:
         uart_driver_install(UART_NUM_1, BUF_SIZE * 1, BUF_SIZE * 1, 20, &uart0_queue, 0);
         uart_param_config(UART_NUM_1, &uart_config);
 
-        xTaskCreate(UART0_EVENT, "uart0_event", 4096, NULL, 12, NULL);
+        xTaskCreate([](void *arg){
+            CompactWifiBoard *board = (CompactWifiBoard *)arg;
+            board->UART0_EVENT(NULL);
+            vTaskDelete(NULL);
+        }, "uart0_event", 4096, NULL, 12, NULL);
     }
 
-    static void UART0_EVENT(void *pvParameters)
+    void UART0_EVENT(void *pvParameters)
     {
 
         uart_event_t event;                          // uart事件结构体
@@ -243,10 +244,12 @@ private:
                         else if (strcmp((char *)dtmp, "+") == 0)
                         {
                             ESP_LOGI(TAG, "收到增加音量指令");
+                            UpdateVolume(-1);
                         }
                         else if (strcmp((char *)dtmp, "-") == 0)
                         {
                             ESP_LOGI(TAG, "收到减少音量指令");
+                            UpdateVolume(-2);
                         }
                         else
                         {
@@ -255,6 +258,7 @@ private:
                             if (number > 0)
                             {
                                 ESP_LOGI(TAG, "转换后的数字: %d", number);
+                                UpdateVolume(number);
                             }
                         }
                         uart_write_bytes(UART_NUM_1, (const uint8_t *)dtmp, buffered_size);
@@ -289,6 +293,31 @@ private:
         free(dtmp);  // 释放内存
         dtmp = NULL; // 将指针地址指向NULL 防止误调用造成非法访问，
         vTaskDelete(NULL);
+    }
+
+    void UpdateVolume(int volume)
+    {
+        ESP_LOGI(TAG, "UpdateVolume");
+        auto codec = GetAudioCodec();
+        if (volume == -1)
+        {
+            volume = codec->output_volume() + 10;
+        }
+        else if (volume == -2)
+        {
+            volume = codec->output_volume() - 10;
+        }
+        if (volume < 0)
+        {
+            volume = 0;
+        }
+        else if (volume > 100)
+        {
+            volume = 100;
+        }
+        ESP_LOGI(TAG, "Set Volume [%d]", volume);
+        codec->SetOutputVolume(volume);
+        GetDisplay()->ShowNotification(Lang::Strings::VOLUME + std::to_string(volume));
     }
 
 public:
