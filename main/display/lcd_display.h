@@ -54,6 +54,7 @@ public:
     ~LcdDisplay();
     virtual void SetEmotion(const char* emotion) override;
     virtual void SetIcon(const char* icon) override;
+    virtual void SetStatus(const char* status) override;
     void SetClockBg(const void *value);
     void SetChatBg(const void *value);
     void SetEmoImg(const char *value);

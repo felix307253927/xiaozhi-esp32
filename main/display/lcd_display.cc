@@ -13,9 +13,12 @@
 #include "application.h"
 #define TAG "LcdDisplay"
 
-LV_IMAGE_DECLARE(eye1);
-LV_IMAGE_DECLARE(eye2);
-LV_IMAGE_DECLARE(eye3);
+LV_IMAGE_DECLARE(fadai);
+LV_IMAGE_DECLARE(haqian);
+LV_IMAGE_DECLARE(jiayou);
+LV_IMAGE_DECLARE(nanguo);
+LV_IMAGE_DECLARE(shuohua);
+LV_IMAGE_DECLARE(weixiao);
 
 // Color definitions for dark theme
 #define DARK_BACKGROUND_COLOR lv_color_hex(0x121212)       // Dark background
@@ -316,7 +319,6 @@ ClockSpiLcdDisplay::ClockSpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_l
     }
 
     SetupUI();
-    // SetClockUI(lv_screen_active());
 }
 
 LcdDisplay::~LcdDisplay()
@@ -670,115 +672,107 @@ void LcdDisplay::SetupUI()
     lv_obj_set_style_text_color(screen, current_theme.text, 0);
     lv_obj_set_style_bg_color(screen, current_theme.background, 0);
 
-    static const lv_image_dsc_t *anim_imgs[3] = {
-        &eye1,
-        &eye2,
-        &eye3,
-    };
-
     lv_obj_t *clock_bg = lv_animimg_create(screen);
     lv_obj_set_size(clock_bg, LV_HOR_RES, LV_VER_RES);
     lv_obj_align(clock_bg, LV_ALIGN_CENTER, 0, 0);
-    lv_animimg_set_src(clock_bg, (const void **) anim_imgs, 3);
-    lv_animimg_set_duration(clock_bg, 2000);
-    lv_animimg_set_repeat_count(clock_bg, LV_ANIM_REPEAT_INFINITE);
-    lv_animimg_start(clock_bg);
 
     /* Container */
-    // container_ = lv_obj_create(screen);
-    // lv_obj_set_size(container_, LV_HOR_RES, LV_VER_RES);
-    // lv_obj_set_flex_flow(container_, LV_FLEX_FLOW_COLUMN);
-    // lv_obj_set_style_pad_all(container_, 0, 0);
-    // lv_obj_set_style_border_width(container_, 0, 0);
-    // lv_obj_set_style_pad_row(container_, 0, 0);
-    // lv_obj_set_style_bg_color(container_, current_theme.background, 0);
-    // lv_obj_set_style_border_width(container_, 0, 0);
+    container_ = lv_obj_create(screen);
+    lv_obj_set_size(container_, LV_HOR_RES, LV_VER_RES);
+    lv_obj_set_flex_flow(container_, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(container_, 0, 0);
+    lv_obj_set_style_border_width(container_, 0, 0);
+    lv_obj_set_style_pad_row(container_, 0, 0);
+    lv_obj_set_style_bg_color(container_, current_theme.background, 0);
+    lv_obj_set_style_border_width(container_, 0, 0);
 
-    // /* Status bar */
-    // status_bar_ = lv_obj_create(container_);
-    // lv_obj_set_size(status_bar_, LV_HOR_RES, fonts_.text_font->line_height);
-    // lv_obj_set_style_radius(status_bar_, 0, 0);
-    // lv_obj_set_style_bg_color(status_bar_, current_theme.background, 0);
-    // lv_obj_set_style_text_color(status_bar_, current_theme.text, 0);
-    // lv_obj_set_style_border_width(status_bar_, 0, 0);
+    /* Status bar */
+    status_bar_ = lv_obj_create(container_);
+    lv_obj_set_size(status_bar_, LV_HOR_RES, fonts_.text_font->line_height);
+    lv_obj_set_style_radius(status_bar_, 0, 0);
+    lv_obj_set_style_bg_color(status_bar_, current_theme.background, 0);
+    lv_obj_set_style_text_color(status_bar_, current_theme.text, 0);
+    lv_obj_set_style_border_width(status_bar_, 0, 0);
 
-    // /* Content */
-    // content_ = lv_obj_create(container_);
-    // lv_obj_set_scrollbar_mode(content_, LV_SCROLLBAR_MODE_OFF);
-    // lv_obj_set_style_radius(content_, 0, 0);
-    // lv_obj_set_width(content_, LV_HOR_RES);
-    // lv_obj_set_flex_grow(content_, 1);
-    // lv_obj_set_style_pad_all(content_, 5, 0);
-    // // lv_obj_set_style_bg_color(content_, current_theme.chat_background, 0);
-    // lv_obj_set_style_border_width(content_, 0, 0);
+    /* Content */
+    content_ = lv_obj_create(container_);
+    lv_obj_set_scrollbar_mode(content_, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_radius(content_, 0, 0);
+    lv_obj_set_width(content_, LV_HOR_RES);
+    lv_obj_set_flex_grow(content_, 1);
+    lv_obj_set_style_pad_all(content_, 5, 0);
+    // lv_obj_set_style_bg_color(content_, current_theme.chat_background, 0);
+    lv_obj_set_style_border_width(content_, 0, 0);
 
-    // lv_obj_set_flex_flow(content_, LV_FLEX_FLOW_COLUMN);                                                     // 垂直布局（从上到下）
-    // lv_obj_set_flex_align(content_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY); // 子对象居中对齐，等距分布
+    lv_obj_set_flex_flow(content_, LV_FLEX_FLOW_COLUMN);                                                     // 垂直布局（从上到下）
+    lv_obj_set_flex_align(content_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY); // 子对象居中对齐，等距分布
 
-    // emotion_label_ = lv_label_create(content_);
-    // lv_obj_set_style_text_font(emotion_label_, &font_awesome_30_4, 0);
-    // lv_obj_set_style_text_color(emotion_label_, current_theme.text, 0);
-    // lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
+    emotion_label_ = lv_label_create(content_);
+    lv_obj_set_style_text_font(emotion_label_, &font_awesome_30_4, 0);
+    lv_obj_set_style_text_color(emotion_label_, current_theme.text, 0);
+    lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
 
-    // chat_message_label_ = lv_label_create(content_);
-    // lv_label_set_text(chat_message_label_, "");
-    // lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.9);                   // 限制宽度为屏幕宽度的 90%
-    // lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_WRAP);           // 设置为自动换行模式
-    // lv_obj_set_style_text_align(chat_message_label_, LV_TEXT_ALIGN_CENTER, 0); // 设置文本居中对齐
-    // lv_obj_set_style_text_color(chat_message_label_, current_theme.text, 0);
+    chat_message_label_ = lv_label_create(content_);
+    lv_label_set_text(chat_message_label_, "");
+    lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.9);                   // 限制宽度为屏幕宽度的 90%
+    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_WRAP);           // 设置为自动换行模式
+    lv_obj_set_style_text_align(chat_message_label_, LV_TEXT_ALIGN_CENTER, 0); // 设置文本居中对齐
+    lv_obj_set_style_text_color(chat_message_label_, lv_color_white(), 0);
 
-    // /* Status bar */
-    // lv_obj_set_flex_flow(status_bar_, LV_FLEX_FLOW_ROW);
-    // lv_obj_set_style_pad_all(status_bar_, 0, 0);
-    // lv_obj_set_style_border_width(status_bar_, 0, 0);
-    // lv_obj_set_style_pad_column(status_bar_, 0, 0);
-    // lv_obj_set_style_pad_left(status_bar_, 2, 0);
-    // lv_obj_set_style_pad_right(status_bar_, 2, 0);
-    // lv_obj_set_style_border_width(status_bar_, 0, 0);
+    /* Status bar */
+    lv_obj_set_flex_flow(status_bar_, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_all(status_bar_, 0, 0);
+    lv_obj_set_style_border_width(status_bar_, 0, 0);
+    lv_obj_set_style_pad_column(status_bar_, 0, 0);
+    lv_obj_set_style_pad_left(status_bar_, 2, 0);
+    lv_obj_set_style_pad_right(status_bar_, 2, 0);
+    lv_obj_set_style_border_width(status_bar_, 0, 0);
 
-    // network_label_ = lv_label_create(status_bar_);
-    // lv_label_set_text(network_label_, "");
-    // lv_obj_set_style_text_font(network_label_, fonts_.icon_font, 0);
-    // lv_obj_set_style_text_color(network_label_, current_theme.text, 0);
-    // lv_obj_set_style_border_width(network_label_, 0, 0);
+    network_label_ = lv_label_create(status_bar_);
+    lv_label_set_text(network_label_, "");
+    lv_obj_set_style_text_font(network_label_, fonts_.icon_font, 0);
+    lv_obj_set_style_text_color(network_label_, current_theme.text, 0);
+    lv_obj_set_style_border_width(network_label_, 0, 0);
 
-    // notification_label_ = lv_label_create(status_bar_);
-    // lv_obj_set_flex_grow(notification_label_, 1);
-    // lv_obj_set_style_text_align(notification_label_, LV_TEXT_ALIGN_CENTER, 0);
-    // lv_obj_set_style_text_color(notification_label_, current_theme.text, 0);
-    // lv_label_set_text(notification_label_, "");
-    // lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
-    // lv_obj_set_style_border_width(notification_label_, 0, 0);
+    notification_label_ = lv_label_create(status_bar_);
+    lv_obj_set_flex_grow(notification_label_, 1);
+    lv_obj_set_style_text_align(notification_label_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_color(notification_label_, current_theme.text, 0);
+    lv_label_set_text(notification_label_, "");
+    lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_style_border_width(notification_label_, 0, 0);
 
-    // status_label_ = lv_label_create(status_bar_);
-    // lv_obj_set_flex_grow(status_label_, 1);
-    // lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    // lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);
-    // lv_obj_set_style_text_color(status_label_, current_theme.text, 0);
-    // lv_label_set_text(status_label_, Lang::Strings::INITIALIZING);
-    // lv_obj_set_style_border_width(status_label_, 0, 0);
+    status_label_ = lv_label_create(status_bar_);
+    lv_obj_set_flex_grow(status_label_, 1);
+    lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_color(status_label_, current_theme.text, 0);
+    lv_label_set_text(status_label_, Lang::Strings::INITIALIZING);
+    lv_obj_set_style_border_width(status_label_, 0, 0);
 
-    // mute_label_ = lv_label_create(status_bar_);
-    // lv_label_set_text(mute_label_, "");
-    // lv_obj_set_style_text_font(mute_label_, fonts_.icon_font, 0);
-    // lv_obj_set_style_text_color(mute_label_, current_theme.text, 0);
+    mute_label_ = lv_label_create(status_bar_);
+    lv_label_set_text(mute_label_, "");
+    lv_obj_set_style_text_font(mute_label_, fonts_.icon_font, 0);
+    lv_obj_set_style_text_color(mute_label_, current_theme.text, 0);
 
-    // battery_label_ = lv_label_create(status_bar_);
-    // lv_label_set_text(battery_label_, "");
-    // lv_obj_set_style_text_font(battery_label_, fonts_.icon_font, 0);
-    // lv_obj_set_style_text_color(battery_label_, current_theme.text, 0);
+    battery_label_ = lv_label_create(status_bar_);
+    lv_label_set_text(battery_label_, "");
+    lv_obj_set_style_text_font(battery_label_, fonts_.icon_font, 0);
+    lv_obj_set_style_text_color(battery_label_, current_theme.text, 0);
 
-    // low_battery_popup_ = lv_obj_create(screen);
-    // lv_obj_set_scrollbar_mode(low_battery_popup_, LV_SCROLLBAR_MODE_OFF);
-    // lv_obj_set_size(low_battery_popup_, LV_HOR_RES * 0.9, fonts_.text_font->line_height * 2);
-    // lv_obj_align(low_battery_popup_, LV_ALIGN_BOTTOM_MID, 0, 0);
-    // lv_obj_set_style_bg_color(low_battery_popup_, current_theme.low_battery, 0);
-    // lv_obj_set_style_radius(low_battery_popup_, 10, 0);
-    // lv_obj_t *low_battery_label = lv_label_create(low_battery_popup_);
-    // lv_label_set_text(low_battery_label, Lang::Strings::BATTERY_NEED_CHARGE);
-    // lv_obj_set_style_text_color(low_battery_label, lv_color_white(), 0);
-    // lv_obj_center(low_battery_label);
-    // lv_obj_add_flag(low_battery_popup_, LV_OBJ_FLAG_HIDDEN);
+    low_battery_popup_ = lv_obj_create(screen);
+    lv_obj_set_scrollbar_mode(low_battery_popup_, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_size(low_battery_popup_, LV_HOR_RES * 0.9, fonts_.text_font->line_height * 2);
+    lv_obj_align(low_battery_popup_, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_set_style_bg_color(low_battery_popup_, current_theme.low_battery, 0);
+    lv_obj_set_style_radius(low_battery_popup_, 10, 0);
+    lv_obj_t *low_battery_label = lv_label_create(low_battery_popup_);
+    lv_label_set_text(low_battery_label, Lang::Strings::BATTERY_NEED_CHARGE);
+    lv_obj_set_style_text_color(low_battery_label, lv_color_white(), 0);
+    lv_obj_center(low_battery_label);
+    lv_obj_add_flag(low_battery_popup_, LV_OBJ_FLAG_HIDDEN);
+
+    SetClockUI(screen);
 }
 #endif
 
@@ -1122,14 +1116,14 @@ void LcdDisplay::SetClockUI(lv_obj_t *parent)
 
     lv_obj_add_flag(clock_screen_, LV_OBJ_FLAG_HIDDEN);
     // 隐藏表情
-    // lv_obj_set_style_text_opa(emotion_label_, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_text_opa(emotion_label_, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(network_label_, 0, 0);
     lv_obj_set_style_border_width(status_bar_, 0, 0);
     lv_obj_set_style_border_width(status_label_, 0, 0);
     lv_obj_set_style_border_width(notification_label_, 0, 0);
     lv_obj_set_style_border_width(container_, 0, 0);
 
-    // // 添加表情图片
+    // 添加表情图片
     // emo_img_ = lv_image_create(content_);
     // lv_obj_set_style_bg_opa(emo_img_, LV_OPA_TRANSP, 0);
     // lv_obj_set_style_border_width(emo_img_, 0, 0);
@@ -1138,45 +1132,95 @@ void LcdDisplay::SetClockUI(lv_obj_t *parent)
 
     // 将container_内部的元素背景全部设置为透明
     // 递归地将container_及其所有子元素的背景设置为透明
-    // if (container_ != nullptr)
-    // {
-    //     // 设置container_本身透明
-    //     lv_obj_set_style_bg_opa(container_, LV_OPA_TRANSP, 0);
+    if (container_ != nullptr)
+    {
+        // 设置container_本身透明
+        lv_obj_set_style_bg_opa(container_, LV_OPA_TRANSP, 0);
 
-    //     // 设置status_bar_及其子元素透明
-    //     if (status_bar_ != nullptr)
-    //     {
-    //         lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
-    //         uint32_t child_cnt = lv_obj_get_child_cnt(status_bar_);
-    //         for (uint32_t i = 0; i < child_cnt; i++)
-    //         {
-    //             lv_obj_t *child = lv_obj_get_child(status_bar_, i);
-    //             lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
-    //         }
-    //     }
+        // 设置status_bar_及其子元素透明
+        if (status_bar_ != nullptr)
+        {
+            lv_obj_set_style_bg_opa(status_bar_, LV_OPA_TRANSP, 0);
+            uint32_t child_cnt = lv_obj_get_child_cnt(status_bar_);
+            for (uint32_t i = 0; i < child_cnt; i++)
+            {
+                lv_obj_t *child = lv_obj_get_child(status_bar_, i);
+                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
+            }
+        }
 
-    //     // 设置content_及其子元素透明
-    //     if (content_ != nullptr)
-    //     {
-    //         lv_obj_set_style_bg_opa(content_, LV_OPA_TRANSP, 0);
-    //         uint32_t child_cnt = lv_obj_get_child_cnt(content_);
-    //         for (uint32_t i = 0; i < child_cnt; i++)
-    //         {
-    //             lv_obj_t *child = lv_obj_get_child(content_, i);
-    //             lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
+        // 设置content_及其子元素透明
+        if (content_ != nullptr)
+        {
+            lv_obj_set_style_bg_opa(content_, LV_OPA_TRANSP, 0);
+            uint32_t child_cnt = lv_obj_get_child_cnt(content_);
+            for (uint32_t i = 0; i < child_cnt; i++)
+            {
+                lv_obj_t *child = lv_obj_get_child(content_, i);
+                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, 0);
 
-    //             // 处理content_子元素的子元素（例如消息气泡及其内容）
-    //             uint32_t grandchild_cnt = lv_obj_get_child_cnt(child);
-    //             for (uint32_t j = 0; j < grandchild_cnt; j++)
-    //             {
-    //                 lv_obj_t *grandchild = lv_obj_get_child(child, j);
-    //                 lv_obj_set_style_bg_opa(grandchild, LV_OPA_TRANSP, 0);
-    //             }
-    //         }
-    //     }
-    // }
+                // 处理content_子元素的子元素（例如消息气泡及其内容）
+                uint32_t grandchild_cnt = lv_obj_get_child_cnt(child);
+                for (uint32_t j = 0; j < grandchild_cnt; j++)
+                {
+                    lv_obj_t *grandchild = lv_obj_get_child(child, j);
+                    lv_obj_set_style_bg_opa(grandchild, LV_OPA_TRANSP, 0);
+                }
+            }
+        }
+    }
+
+    lv_obj_set_style_bg_img_src(clock_screen_, &shuohua, 0);
+    lv_obj_set_style_bg_img_src(container_, &haqian, 0);
 }
 
+void LcdDisplay::SetStatus(const char *status)
+{
+    DisplayLockGuard lock(this);
+    if (status_label_ == nullptr)
+    {
+        return;
+    }
+    lv_label_set_text(status_label_, status);
+    lv_obj_clear_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
+
+    auto state = Application::GetInstance().GetDeviceState();
+    if (state == kDeviceStateSpeaking)
+    {
+        SetChatBg(&shuohua);
+    }
+    else if (state == kDeviceStateListening)
+    {
+        SetChatBg(&weixiao);
+    }
+    else
+    {
+        if (Lang::Strings::STANDBY == status)
+        {
+            SetChatBg(&fadai);
+        }
+        else if (Lang::Strings::CONNECTING == status)
+        {
+            SetChatBg(&jiayou);
+        }
+        else if (Lang::Strings::SCANNING_WIFI == status)
+        {
+            SetChatBg(&haqian);
+        }
+        else if (Lang::Strings::SERVER_NOT_FOUND == status ||
+                 Lang::Strings::SERVER_NOT_CONNECTED == status ||
+                 Lang::Strings::SERVER_ERROR == status ||
+                 Lang::Strings::SERVER_TIMEOUT == status)
+        {
+            SetChatBg(&nanguo);
+        }
+        else
+        {
+            SetChatBg(&fadai);
+        }
+    }
+}
 void LcdDisplay::SetClockBg(const void *value)
 {
     if (clock_screen_ != nullptr)
@@ -1192,13 +1236,18 @@ void LcdDisplay::SetChatBg(const void *value)
     {
         DisplayLockGuard lock(this);
         // 设置时钟背景
-        lv_obj_set_style_bg_img_src(container_, value, 0);
+        auto src = lv_obj_get_style_bg_image_src(container_, LV_PART_MAIN);
+        if (src != value)
+        {
+            lv_obj_set_style_bg_img_src(container_, value, 0);
+        }
     }
 }
 
 void LcdDisplay::SetClockTime()
 {
-    if (clock_screen_== nullptr || container_  == clock_screen_) {
+    if (clock_screen_ == nullptr || container_ == clock_screen_)
+    {
         return;
     }
     if (clock_screen_ == nullptr || time_txt_ == nullptr)
@@ -1219,11 +1268,6 @@ void LcdDisplay::SetClockTime()
         return;
     }
     auto &app = Application::GetInstance();
-    // if (app.GetDeviceState() == kDeviceStateSpeaking){
-    //     SetChatBg(&_speek_RGB565A8_360x360);
-    // } else {
-    //     SetChatBg(&chat_RGB565A8_360x360);
-    // }
     if (app.GetDeviceState() != kDeviceStateIdle)
     {
         // 设备非空闲时不更新时钟
