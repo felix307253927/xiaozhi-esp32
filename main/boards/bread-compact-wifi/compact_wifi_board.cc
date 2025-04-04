@@ -133,13 +133,7 @@ private:
         volume_up_button_.OnClick([this]()
                                   {
             ESP_LOGI(TAG, "volume_up_button_ pressed");
-            auto codec = GetAudioCodec();
-            auto volume = codec->output_volume() + 10;
-            if (volume > 100) {
-                volume = 100;
-            }
-            codec->SetOutputVolume(volume);
-            GetDisplay()->ShowNotification(Lang::Strings::VOLUME + std::to_string(volume)); });
+            UpdateVolume(-1); });
 
         volume_up_button_.OnLongPress([this]()
                                       {
@@ -148,15 +142,7 @@ private:
             GetDisplay()->ShowNotification(Lang::Strings::MAX_VOLUME); });
 
         volume_down_button_.OnClick([this]()
-                                    {
-            ESP_LOGI(TAG, "volume_down_button_ pressed");
-            auto codec = GetAudioCodec();
-            auto volume = codec->output_volume() - 10;
-            if (volume < 0) {
-                volume = 0;
-            }
-            codec->SetOutputVolume(volume);
-            GetDisplay()->ShowNotification(Lang::Strings::VOLUME + std::to_string(volume)); });
+                                    { UpdateVolume(-2); });
 
         volume_down_button_.OnLongPress([this]()
                                         {
@@ -188,14 +174,13 @@ private:
         uart_driver_install(UART_NUM_1, BUF_SIZE * 1, BUF_SIZE * 1, 20, &uart0_queue, 0);
         uart_param_config(UART_NUM_1, &uart_config);
 
-        xTaskCreate([](void *arg){
+        xTaskCreate([](void *arg)
+                    {
             CompactWifiBoard *board = (CompactWifiBoard *)arg;
-            board->UART0_EVENT(NULL);
-            vTaskDelete(NULL);
-        }, "uart0_event", 4096, NULL, 12, NULL);
+            board->UART0_EVENT(); }, "uart1_event", 4096 * 2, this, 6, NULL);
     }
 
-    void UART0_EVENT(void *pvParameters)
+    void UART0_EVENT()
     {
 
         uart_event_t event;                          // uart事件结构体
@@ -240,6 +225,11 @@ private:
                         if (strcmp((char *)dtmp, "open") == 0)
                         {
                             ESP_LOGI(TAG, "收到打开指令");
+                            auto& app = Application::GetInstance();
+                            if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
+                                ResetWifiConfiguration();
+                            }
+                            app.StartChatState();
                         }
                         else if (strcmp((char *)dtmp, "+") == 0)
                         {
@@ -297,7 +287,7 @@ private:
 
     void UpdateVolume(int volume)
     {
-        ESP_LOGI(TAG, "UpdateVolume");
+        ESP_LOGI(TAG, "UpdateVolume %d", volume);
         auto codec = GetAudioCodec();
         if (volume == -1)
         {
