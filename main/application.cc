@@ -70,7 +70,7 @@ void Application::CheckNewVersion() {
     while (true) {
         SetDeviceState(kDeviceStateActivating);
         auto display = Board::GetInstance().GetDisplay();
-        display->SetStatus(Lang::Strings::CHECKING_NEW_VERSION);
+        display->SetStatus(Lang::Strings::NEW_VERSION);
 
         if (!ota_.CheckVersion()) {
             retry_count++;

@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-04-14 21:12:54
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-04-14 21:18:31
+ */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
 
@@ -21,6 +28,11 @@
 
 #define BUILTIN_LED_GPIO        GPIO_NUM_21
 #define BOOT_BUTTON_GPIO        GPIO_NUM_0
+#define BUTTON_GPIO37        GPIO_NUM_37
+#define BUTTON_GPIO38        GPIO_NUM_38
+#define BUTTON_GPIO39        GPIO_NUM_39
+#define BUTTON_GPIO40        GPIO_NUM_40
+#define BUTTON_GPIO41        GPIO_NUM_41
 
 #define DISPLAY_WIDTH   240
 #define DISPLAY_HEIGHT  240
