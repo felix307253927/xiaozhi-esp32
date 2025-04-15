@@ -74,6 +74,11 @@ public:
     void WakeWordInvoke(const std::string& wake_word);
     void PlaySound(const std::string_view& sound);
     bool CanEnterSleepMode();
+    void SendAudioData(const std::vector<uint8_t>& data) {
+        if (protocol_) {
+            protocol_->SendAudio(data);
+        }
+    }
 
 private:
     Application();

@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-02-14 19:48:34
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-04-14 22:32:02
+ */
 #ifndef MQTT_PROTOCOL_H
 #define MQTT_PROTOCOL_H
 
