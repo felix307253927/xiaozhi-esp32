@@ -15,11 +15,6 @@
 #include <esp_lcd_panel_ops.h>
 #include <esp_lcd_panel_vendor.h>
 #include <arpa/inet.h>
-#include "nihao.h"
-#include "motou.h"
-#include "dani.h"
-#include "naoyy.h"
-#include "paipai.h"
 
 #ifdef SH1106
 #include <esp_lcd_panel_sh1106.h>
@@ -40,8 +35,12 @@ private:
     Button touch_button_;
     Button volume_up_button_;
     Button volume_down_button_;
-    Button button_37;
-    Button button_38;
+    Button button_9;
+    Button button_10;
+    Button button_11;
+    Button button_12;
+    Button button_13;
+    Button button_14;
 
     // 音频处理器配置
     AudioProcessor audio_processor_;
@@ -115,85 +114,6 @@ private:
             {&font_puhui_14_1, &font_awesome_14_1});
     }
 
-    // 优化后的音频发送函数
-    bool SendAudioData(const uint8_t* data, size_t size, std::function<void(float)> progress_callback = nullptr) {
-        auto& app = Application::GetInstance();
-        
-        // 检查设备状态
-        if (app.GetDeviceState() != kDeviceStateIdle) {
-            ESP_LOGW(TAG, "Device not in idle state, cannot send audio");
-            return false;
-        }
-
-        // 初始化音频处理器
-        if (!audio_processor_initialized_) {
-            audio_processor_.Initialize(GetAudioCodec(), true);
-            audio_processor_.Start();
-            audio_processor_initialized_ = true;
-        }
-
-        // 启动聊天状态
-        app.StartChatState();
-        vTaskDelay(pdMS_TO_TICKS(200));  // 等待设备进入监听状态
-
-        if (app.GetDeviceState() != kDeviceStateListening) {
-            ESP_LOGW(TAG, "Device failed to enter listening state");
-            return false;
-        }
-
-        static constexpr size_t BUFFER_SIZE = 512; // 增加缓冲区大小以提高效率
-        static uint8_t dma_buffer[BUFFER_SIZE] __attribute__((aligned(4))); // 确保内存对齐
-        const char* p = (const char*)data;
-        const char* end = p + size;
-        size_t total_sent = 0;
-
-        while (p < end) {
-            auto p3 = (BinaryProtocol3*)p;
-            p += sizeof(BinaryProtocol3);
-            auto payload_size = ntohs(p3->payload_size);
-            
-            // 使用DMA缓冲区处理音频数据
-            size_t remaining = payload_size;
-            const uint8_t* payload_data = p3->payload;
-            
-            while (remaining > 0) {
-                size_t chunk_size = std::min(BUFFER_SIZE, remaining);
-                memcpy(dma_buffer, payload_data, chunk_size);
-                
-                // 音频预处理
-                std::vector<int16_t> audio_data(chunk_size / 2);
-                memcpy(audio_data.data(), dma_buffer, chunk_size);
-                
-                // 使用音频处理器进行降噪和回声消除
-                audio_processor_.Feed(audio_data);
-                
-                // 使用值捕获确保数据安全
-                app.Schedule([buffer = std::vector<uint8_t>(dma_buffer, dma_buffer + chunk_size)]() {
-                    auto& app = Application::GetInstance();
-                    if (app.GetDeviceState() == kDeviceStateListening) {
-                        app.SendAudioData(buffer);
-                    }
-                });
-                
-                payload_data += chunk_size;
-                remaining -= chunk_size;
-                total_sent += chunk_size;
-                
-                // 更新进度
-                if (progress_callback) {
-                    progress_callback(float(total_sent) / size);
-                }
-                
-                // 控制发送速率，避免缓冲区溢出
-                vTaskDelay(pdMS_TO_TICKS(10));
-            }
-            
-            p += payload_size;
-        }
-        
-        return true;
-    }
-
     void InitializeButtons() {
         boot_button_.OnClick([this]() {
             auto& app = Application::GetInstance();
@@ -238,15 +158,40 @@ private:
             GetAudioCodec()->SetOutputVolume(0);
             GetDisplay()->ShowNotification(Lang::Strings::MUTED);
         });
-        button_37.OnClick([this](){
+        button_9.OnClick([this](){
             ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
             
-            // 发送音频数据并显示进度
-            SendAudioData(audio::nihao_wav, audio::nihao_wav_len);
+            Application::GetInstance().WakeWordInvoke("拍拍你的头");
         });
-        button_38.OnClick([this](){
-            ESP_LOGI(TAG, "button_38 pressed, sending motou audio");
-            SendAudioData(audio::motou_wav, audio::motou_wav_len);
+        button_10.OnClick([this](){
+            ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
+            
+            Application::GetInstance().WakeWordInvoke("拉拉你的手");
+        });
+        button_11.OnClick([this](){
+            ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
+            
+            Application::GetInstance().WakeWordInvoke("挠你痒痒");
+        });
+        button_12.OnClick([this](){
+            ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
+            
+            Application::GetInstance().WakeWordInvoke("摸摸你的腿");
+        });
+        button_12.OnClick([this](){
+            ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
+            
+            Application::GetInstance().WakeWordInvoke("拍拍你的屁股");
+        });
+        button_13.OnClick([this](){
+            ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
+            
+            Application::GetInstance().WakeWordInvoke("摸摸你的脸");
+        });
+        button_14.OnClick([this](){
+            ESP_LOGI(TAG, "button_37 pressed, sending nihao audio");
+            
+            Application::GetInstance().WakeWordInvoke("揪你耳朵");
         });
     }
 
@@ -263,8 +208,12 @@ public:
         touch_button_(TOUCH_BUTTON_GPIO),
         volume_up_button_(VOLUME_UP_BUTTON_GPIO),
         volume_down_button_(VOLUME_DOWN_BUTTON_GPIO),
-        button_37(BUTTON_GPIO_37),
-        button_38(BUTTON_GPIO_38) {
+        button_9(BUTTON_GPIO_9),
+        button_10(BUTTON_GPIO_10),
+        button_11(BUTTON_GPIO_11),
+        button_12(BUTTON_GPIO_12),
+        button_13(BUTTON_GPIO_13),
+        button_14(BUTTON_GPIO_14) {
         InitializeDisplayI2c();
         InitializeSsd1306Display();
         InitializeButtons();

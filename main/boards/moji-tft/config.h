@@ -3,7 +3,7 @@
  * @Email              : 307253927@qq.com
  * @Date               : 2025-04-14 21:12:54
  * @LastEditors        : Felix
- * @LastEditTime       : 2025-04-14 21:18:31
+ * @LastEditTime       : 2025-04-15 23:13:18
  */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
@@ -28,11 +28,12 @@
 
 #define BUILTIN_LED_GPIO        GPIO_NUM_21
 #define BOOT_BUTTON_GPIO        GPIO_NUM_0
-#define BUTTON_GPIO37        GPIO_NUM_37
-#define BUTTON_GPIO38        GPIO_NUM_38
-#define BUTTON_GPIO39        GPIO_NUM_39
-#define BUTTON_GPIO40        GPIO_NUM_40
-#define BUTTON_GPIO41        GPIO_NUM_41
+#define BUTTON_1        GPIO_NUM_1  // 我在拍拍你的头
+#define BUTTON_2        GPIO_NUM_2  // 我在揪你的耳朵
+#define BUTTON_3        GPIO_NUM_10 // 我在挠你痒痒
+#define BUTTON_4        GPIO_NUM_39 // 我在捏你的下巴
+#define BUTTON_5        GPIO_NUM_40 // 我在拉你的手
+#define BUTTON_6        GPIO_NUM_41 // 我在拉你的脚
 
 #define DISPLAY_WIDTH   240
 #define DISPLAY_HEIGHT  240

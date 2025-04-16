@@ -944,6 +944,18 @@ void Application::WakeWordInvoke(const std::string& wake_word) {
         });
     }
 }
+void Application::SendWakeWord(const std::string& wake_word) {
+    if (device_state_ != kDeviceStateListening) {
+        ToggleChatState();
+        background_task_->WaitForCompletion();
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+    Schedule([this, wake_word]() {
+        if (protocol_) {
+            protocol_->SendWakeWordDetected(wake_word); 
+        }
+    }); 
+}
 
 bool Application::CanEnterSleepMode() {
     if (device_state_ != kDeviceStateIdle) {

@@ -1,3 +1,10 @@
+/*
+ * @Author             : Felix
+ * @Email              : 307253927@qq.com
+ * @Date               : 2025-02-14 19:48:34
+ * @LastEditors        : Felix
+ * @LastEditTime       : 2025-04-15 22:55:54
+ */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
 
@@ -30,8 +37,12 @@
 
 #define BUILTIN_LED_GPIO        GPIO_NUM_48
 #define BOOT_BUTTON_GPIO        GPIO_NUM_0
-#define BUTTON_GPIO_37        GPIO_NUM_17
-#define BUTTON_GPIO_38        GPIO_NUM_18
+#define BUTTON_GPIO_9        GPIO_NUM_9
+#define BUTTON_GPIO_10        GPIO_NUM_10
+#define BUTTON_GPIO_11        GPIO_NUM_11
+#define BUTTON_GPIO_12        GPIO_NUM_12
+#define BUTTON_GPIO_13        GPIO_NUM_13
+#define BUTTON_GPIO_14        GPIO_NUM_14
 
 #define TOUCH_BUTTON_GPIO       GPIO_NUM_47
 #define VOLUME_UP_BUTTON_GPIO   GPIO_NUM_40

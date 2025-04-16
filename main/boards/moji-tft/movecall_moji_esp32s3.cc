@@ -29,11 +29,12 @@ class MovecallMojiESP32S3 : public WifiBoard
 private:
     i2c_master_bus_handle_t codec_i2c_bus_;
     Button boot_button_;
-    Button button_37;
-    Button button_38;
-    Button button_39;
-    Button button_40;
-    Button button_41;
+    Button button_1;
+    Button button_2;
+    Button button_3;
+    Button button_4;
+    Button button_5;
+    Button button_6;
     LcdDisplay *display_;
 
     void InitializeCodecI2c()
@@ -108,8 +109,30 @@ private:
             ESP_LOGI(TAG, "boot_button_ pressed");
             app.StartChatState(); });
 
-        button_37.OnClick([this](){
-            ESP_LOGI(TAG, "button_37 pressed");
+        button_1.OnClick([this]() { 
+            ESP_LOGI(TAG, "button_ pressed");
+            // Application::GetInstance().SendWakeWord("我在挠你痒痒。"); 
+            Application::GetInstance().SendWakeWord("我在拍拍你的头。"); 
+        });
+        button_2.OnClick([this]() { 
+            ESP_LOGI(TAG, "button_ pressed");
+            Application::GetInstance().SendWakeWord("我在揪你的耳朵。"); 
+        });
+        button_3.OnClick([this]() { 
+            ESP_LOGI(TAG, "button_ pressed");
+            Application::GetInstance().SendWakeWord("我在挠你痒痒。"); 
+        });
+        button_4.OnClick([this]() { 
+            ESP_LOGI(TAG, "button_ pressed");
+            Application::GetInstance().SendWakeWord("我在捏你的下巴。"); 
+        });
+        button_5.OnClick([this]() { 
+            ESP_LOGI(TAG, "button_ pressed");
+            Application::GetInstance().SendWakeWord("我在拉你的手。"); 
+        });
+        button_6.OnClick([this]() { 
+            ESP_LOGI(TAG, "button_ pressed");
+            Application::GetInstance().SendWakeWord("我在拉你的脚。"); 
         });
     }
 
@@ -122,7 +145,7 @@ private:
     }
 
 public:
-    MovecallMojiESP32S3() : boot_button_(BOOT_BUTTON_GPIO), button_37(BUTTON_GPIO37), button_38(BUTTON_GPIO38), button_39(BUTTON_GPIO39), button_40(BUTTON_GPIO40), button_41(BUTTON_GPIO41)
+    MovecallMojiESP32S3() : boot_button_(BOOT_BUTTON_GPIO), button_1(BUTTON_1), button_2(BUTTON_2), button_3(BUTTON_3), button_4(BUTTON_4), button_5(BUTTON_5), button_6(BUTTON_6)
     {
         InitializeCodecI2c();
         InitializeSpi();
